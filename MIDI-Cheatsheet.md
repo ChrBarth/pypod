@@ -31,7 +31,16 @@ Octave | C  | C# | D  | D# | E  | F  | F# | G  | G# | A  | A# | B
 1      | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23
 ...
 
-### Controller Change on Channel 1:
+### SysEx Commands:
+
+    F0 XX nn nn ... F7
+
+F0 -> Start SysEx
+XX -> Manufacturer ID ( 00 01 0C for Line 6) see [here] (https://www.midi.org/specifications-old/item/manufacturer-id-numbers)
+nn -> one or more commands
+F7 -> End of SysEx
+
+### Example Controller Change on Channel 1:
 
 0x01 | 0xB0 => 0xB1
 
@@ -50,3 +59,66 @@ Change Amp1 Channel on Line 6 POD 2.0:
     $ amidi -p hw:2,0,0 -S 'B1 0C 0D'
 
 -> POD 2.0 changes to Fuzz Box!
+
+### MIDI-Dump jsynthlib POD 2.0 get Patch 1A:
+
+XMIT: SysEX:length=9
+  f0 00 01 0c 01 00 00 00 f7
+RECV: SysEX:length=152
+  f0 00 01 0c 01 01 00 00 00 00 01 00 01 00 01 00
+00 00 00 00 01 00 00 00 01 00 07 03 00 00 0c 02
+0c 02 01 02 07 00 00 01 07 00 0e 00 0d 00 00 02
+01 07 09 07 0f 07 0f 00 00 00 00 00 00 00 00 00
+00 03 00 0c 00 00 00 00 00 03 00 0c 00 02 0d 00
+00 02 00 00 0f 00 00 01 0b 02 00 02 00 02 00 00
+0b 00 0d 02 00 00 0a 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 04 02 06 09 06 07 02 00 04
+0c 06 05 06 01 06 04 02 00 05 04 06 0f 06 0e 06
+05 02 00 02 00 02 00 f7
+
+get 1B:
+f0 00 01 0c 01 00 00 01 f7
+
+Works as well with amidi:
+
+    $ amidi -p hw:2,0,0 -S 'f0 00 01 0c 01 00 00 00 f7' -d -t 2
+
+### MIDI-Dump jsynthlib POD 2.0 upload Patch 1A:
+
+XMIT: SysEX:length=152
+  f0 00 01 0c 01 01 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 01 00 00 00 01 00 00 01 00 00 0e 02
+00 02 00 02 00 02 00 02 00 02 04 00 0e 07 0f 00
+00 07 0f 07 0e 07 0f 00 00 00 00 00 00 00 00 00
+00 03 00 0c 00 00 00 00 00 03 00 0c 00 02 00 02
+0d 02 00 02 00 00 00 02 00 02 00 02 00 02 00 02
+00 00 00 03 0f 00 0a 01 0f 00 02 0d 0a 00 01 03
+09 04 00 00 00 00 01 05 04 06 05 07 03 07 04 02
+00 02 00 02 00 02 00 02 00 02 00 02 00 02 00 02
+00 02 00 02 00 02 00 f7
+
+### MIDI-Dump jsynthlib POD 2.0 upload Patch 1B:
+
+XMIT: SysEX:length=152
+  f0 00 01 0c 01 01 00 01 00 00 00 00 00 00 00 00
+00 00 00 00 01 00 00 00 01 00 00 01 00 00 0e 02
+00 02 00 02 00 02 00 02 00 02 04 00 0e 07 0f 00
+00 07 0f 07 0e 07 0f 00 00 00 00 00 00 00 00 00
+00 03 00 0c 00 00 00 00 00 03 00 0c 00 02 00 02
+0d 02 00 02 00 00 00 02 00 02 00 02 00 02 00 02
+00 00 00 03 0f 00 0a 01 0f 00 02 0d 0a 00 01 03
+09 04 00 00 00 00 01 05 04 06 05 07 03 07 04 02
+00 02 00 02 00 02 00 02 00 02 00 02 00 02 00 02
+00 02 00 02 00 02 00 f7
+
+### Switch To Patch 1C:
+
+    $ amidi -p hw:2,0,0 -S 'f0 00 01 0c 00 00 c0 03 f7'
+
+### Switch To Patch 1B:
+
+    $ amidi -p hw:2,0,0 -S 'f0 00 01 0c 00 00 c0 02 f7'
+
+### TODO: Get current Patch:
+
+
