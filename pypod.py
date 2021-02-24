@@ -34,7 +34,7 @@ def nib(in_byte):
 # testing stuff:
 
 # dump Program 1A
-cmd = ['amidi', '-p', 'hw:2,0,0', '-S', 'F0 00 01 0C 01 00 00 00 F7', '-d', '-t', '1']
+cmd = ['amidi', '-p', 'hw:2,0,0', '-S', 'F0 00 01 0C 01 00 00 00 F7', '-d', '-t', '2']
 data = subprocess.check_output(cmd)
 b = data.decode("utf-8").replace("\n","").split(" ")
 #print(b)
@@ -59,5 +59,33 @@ for index in range(len(realbytes)):
     x = denib(highnibble, lownibble)
     if x != realbytes[index]:
         print("ERROR: {} != {}".format(x,realbytes[index]))
-    else:
-        print("index {:0>2} original: {:02X} recode: {:02X}".format(index, realbytes[index], x))
+    #else:
+    #    print("index {:0>2} original: {:02X} recode: {:02X}".format(index, realbytes[index], x))
+
+# let's play around some more and
+# actually show what the values mean:
+print("Patch Name: {}".format(name))
+if realbytes[0] > 63:
+    print("Distorton ON")
+if realbytes[1] > 63:
+    print("Drive ENABLED")
+if realbytes[2] > 63:
+    print("Presence ENABLED")
+if realbytes[3] > 63:
+    print("Delay ENABLED")
+if realbytes[4] > 63:
+    print("Tremolo/Chorus Flange ENABLED")
+if realbytes[5] > 63:
+    print("Reverb ENABLED")
+if realbytes[6] > 63:
+    print("Noise Gate ENABLED")
+if realbytes[7] > 63:
+    print("Bright Switch ON")
+print("Amp Type: {}".format(realbytes[8]))
+print("Drive: {}".format(realbytes[9]))
+print("Drive 2: {}".format(realbytes[10]))
+print("Bass: {}".format(realbytes[11]))
+print("Mid: {}".format(realbytes[12]))
+print("Treble: {}".format(realbytes[13]))
+print("Presence: {}".format(realbytes[14]))
+print("Channel Volume: {}".format(realbytes[15]))
