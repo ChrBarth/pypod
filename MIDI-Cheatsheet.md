@@ -2,6 +2,7 @@
 
 ## The Structure Of A Midi Event:
 
+stolen from:
 [Midi Programming - A Complete Study Part 1] (http://www.petesqbsite.com/sections/express/issue18/midifilespart1.html)
 
 Name        | Length and Range| Description
@@ -40,9 +41,33 @@ XX -> Manufacturer ID ( 00 01 0C for Line 6) see [here] (https://www.midi.org/sp
 nn -> one or more commands
 F7 -> End of SysEx
 
+#### Device identification:
+
+stolen from:
+[medias.audiofanzine.com] (https://medias.audiofanzine.com/files/lin020-477344.pdf)
+
+    $ amidi -p hw:2,0,0 -S 'F0 7E 7F 06 01 F7' -d -t 1
+    F0 7E 7F 06 02 00 01 0C 00 00 00 03 30 32 35 34 F7
+    17 bytes read
+
+Request:
+- F0 -> Start SysEX
+- 7E 7F 06 01 -> Universal Device Inquiry (7F -> all channels)
+- F7 -> End of SysEx
+
+Response:
+
+- F0 7E 7F 06 02 -> Universal Device Reply
+- 00 01 0C -> Line 6 (Manufaturer)
+- 00 00 -> POD Product Family ID
+- 00 03 -> POD Product Family Member (LSB first)
+- 30 32 35 34 -> Software Revision (ASCII) = 0 2 5 4 = 2.54
+- F7 -> EOX
+
 ### Example Controller Change on Channel 1:
 
 0x01 | 0xB0 => 0xB1
+(first byte of MIDI CC is status and channel byte combined)
 
 Change Amp1 Channel on Line 6 POD 2.0:
 
