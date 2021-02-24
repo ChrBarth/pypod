@@ -144,6 +144,21 @@ XMIT: SysEX:length=152
 
     $ amidi -p hw:2,0,0 -S 'f0 00 01 0c 00 00 c0 02 f7'
 
-### TODO: Get current Patch:
+## python-pygame:
 
+[documentation] (https://www.pygame.org/docs/ref/midi.html)
 
+    import pygame.midi
+    pygame.midi.get_device_info(5)
+
+Output: (b'ALSA', b'USB Midi Cable MIDI 1', 1, 0, 0)
+
+    pygame.midi.get_device_info(4)
+
+Output: (b'ALSA', b'USB Midi Cable MIDI 1', 0, 1, 0)
+
+    pygame.midi.Output.write_sys_ex(pygame.midi.Output(4), pygame.midi.time(), [0xF0, 0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7])
+
+sends the sysex command (led blinks) but I haven't found out how to capture the data the pod sends back...
+Maybe I need to set up a "game-loop" and poll/read from the device constantly until something gets sent back.
+Will probably try [mido] (https://www.pygame.org/docs/ref/midi.html) tomorrow... ;)
