@@ -21,9 +21,15 @@ def denib(highnibble, lownibble):
     #TRANSMITTED and RECEIVED AS:
     #0: 00 00 00 00 A7 A6 A5 A4
     #1: 00 00 00 00 A3 A2 A1 A0
-    ret_byte = hextoint(highnibble) << 4
-    ret_byte = ret_byte | hextoint(lownibble)
+    ret_byte = highnibble << 4
+    ret_byte = ret_byte | lownibble
     return ret_byte
+
+def nib(in_byte):
+    # reverse function of denib, for creating data to be sent to the pod
+    highnibble = in_byte >> 4
+    lownibble  = in_byte & 0b1111
+    return highnibble, lownibble
 
 # testing stuff:
 
@@ -31,16 +37,27 @@ def denib(highnibble, lownibble):
 cmd = ['amidi', '-p', 'hw:2,0,0', '-S', 'F0 00 01 0C 01 00 00 00 F7', '-d', '-t', '1']
 data = subprocess.check_output(cmd)
 b = data.decode("utf-8").replace("\n","").split(" ")
-print(b)
+#print(b)
 offset = 9 # the first 9 bytes in the response do not count
 realbytes = []
 name = ""
 for x in range(0,71):
-    realbytes.append(denib(b[x*2+offset], b[x*2+offset+1]))
+    realbytes.append(denib(hextoint(b[x*2+offset]), hextoint(b[x*2+offset+1])))
     if x>54:
         # the last 16 (real) bytes are the patch name:
         name = name + chr(realbytes[x])
-for index in range(len(realbytes)):
-    print(realbytes[index], hex(realbytes[index]))
-print(name)
+#for index in range(len(realbytes)):
+#    print(realbytes[index], hex(realbytes[index]))
+#print(name)
 
+# test if the nib-function works:
+b_recode = []
+for index in range(len(realbytes)):
+    highnibble, lownibble = nib(realbytes[index])
+    b_recode.append(highnibble)
+    b_recode.append(lownibble)
+    x = denib(highnibble, lownibble)
+    if x != realbytes[index]:
+        print("ERROR: {} != {}".format(x,realbytes[index]))
+    else:
+        print("index {:0>2} original: {:02X} recode: {:02X}".format(index, realbytes[index], x))
