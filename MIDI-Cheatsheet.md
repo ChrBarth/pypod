@@ -162,3 +162,23 @@ Output: (b'ALSA', b'USB Midi Cable MIDI 1', 0, 1, 0)
 sends the sysex command (led blinks) but I haven't found out how to capture the data the pod sends back...
 Maybe I need to set up a "game-loop" and poll/read from the device constantly until something gets sent back.
 Will probably try [mido] (https://www.pygame.org/docs/ref/midi.html) tomorrow... ;)
+
+## mido:
+
+    $ sudo apt install python3-rtmidi
+
+(pip3 install python-rtmidi leads to ModuleNotFoundError...)
+
+    $ pip3 install mido
+
+    >>> import mido
+    >>> mido.get_input_names()
+    ['M Audio Audiophile 24/96:M Audio Audiophile 24/96 MIDI 16:0', 'Midi Through:Midi Through Port-0 14:0', 'USB Midi Cable:USB Midi Cable MIDI 1 24:0']
+    >>> mido.get_output_names()
+    ['M Audio Audiophile 24/96:M Audio Audiophile 24/96 MIDI 16:0', 'Midi Through:Midi Through Port-0 14:0', 'USB Midi Cable:USB Midi Cable MIDI 1 24:0']
+    >>> msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x02, 0x00, 0x01, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x30, 0x32, 0x35, 0x34])
+    >>> # no need for 0xF0 at the start and 0xF7 at the end
+
+this sends the device identification sysex (works, led is blinking) but catching the output
+will be tricky, I will probably use threads or something similar
+
