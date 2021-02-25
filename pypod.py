@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import subprocess
+#import threading
+import time
+import mido
+
 
 CH = 1 # the default pod2 midi-channel
 
@@ -33,59 +37,73 @@ def nib(in_byte):
 
 # testing stuff:
 
-# dump Program 1A
-cmd = ['amidi', '-p', 'hw:2,0,0', '-S', 'F0 00 01 0C 01 00 00 00 F7', '-d', '-t', '2']
-data = subprocess.check_output(cmd)
-b = data.decode("utf-8").replace("\n","").split(" ")
-#print(b)
-offset = 9 # the first 9 bytes in the response do not count
-realbytes = []
-name = ""
-for x in range(0,71):
-    realbytes.append(denib(hextoint(b[x*2+offset]), hextoint(b[x*2+offset+1])))
-    if x>54:
-        # the last 16 (real) bytes are the patch name:
-        name = name + chr(realbytes[x])
+### TESTING USING mido:
+
+def monitor_input(message):
+    print(message)
+
+inport = mido.open_input('USB Midi Cable:USB Midi Cable MIDI 1 24:0')
+inport.callback = monitor_input
+outport = mido.open_output('USB Midi Cable:USB Midi Cable MIDI 1 24:0')
+msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x02, 0x00, 0x01, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x30, 0x32, 0x35, 0x34])
+time.sleep(2)
+outport.send(msg)
+
+
+### TESTING USING amidi:
+## dump Program 1A
+#cmd = ['amidi', '-p', 'hw:2,0,0', '-S', 'F0 00 01 0C 01 00 00 00 F7', '-d', '-t', '2']
+#data = subprocess.check_output(cmd)
+#b = data.decode("utf-8").replace("\n","").split(" ")
+##print(b)
+#offset = 9 # the first 9 bytes in the response do not count
+#realbytes = []
+#name = ""
+#for x in range(0,71):
+#    realbytes.append(denib(hextoint(b[x*2+offset]), hextoint(b[x*2+offset+1])))
+#    if x>54:
+#        # the last 16 (real) bytes are the patch name:
+#        name = name + chr(realbytes[x])
+##for index in range(len(realbytes)):
+##    print(realbytes[index], hex(realbytes[index]))
+##print(name)
+#
+## test if the nib-function works:
+#b_recode = []
 #for index in range(len(realbytes)):
-#    print(realbytes[index], hex(realbytes[index]))
-#print(name)
-
-# test if the nib-function works:
-b_recode = []
-for index in range(len(realbytes)):
-    highnibble, lownibble = nib(realbytes[index])
-    b_recode.append(highnibble)
-    b_recode.append(lownibble)
-    x = denib(highnibble, lownibble)
-    if x != realbytes[index]:
-        print("ERROR: {} != {}".format(x,realbytes[index]))
-    #else:
-    #    print("index {:0>2} original: {:02X} recode: {:02X}".format(index, realbytes[index], x))
-
-# let's play around some more and
-# actually show what the values mean:
-print("Patch Name: {}".format(name))
-if realbytes[0] > 63:
-    print("Distorton ON")
-if realbytes[1] > 63:
-    print("Drive ENABLED")
-if realbytes[2] > 63:
-    print("Presence ENABLED")
-if realbytes[3] > 63:
-    print("Delay ENABLED")
-if realbytes[4] > 63:
-    print("Tremolo/Chorus Flange ENABLED")
-if realbytes[5] > 63:
-    print("Reverb ENABLED")
-if realbytes[6] > 63:
-    print("Noise Gate ENABLED")
-if realbytes[7] > 63:
-    print("Bright Switch ON")
-print("Amp Type: {}".format(realbytes[8]))
-print("Drive: {}".format(realbytes[9]))
-print("Drive 2: {}".format(realbytes[10]))
-print("Bass: {}".format(realbytes[11]))
-print("Mid: {}".format(realbytes[12]))
-print("Treble: {}".format(realbytes[13]))
-print("Presence: {}".format(realbytes[14]))
-print("Channel Volume: {}".format(realbytes[15]))
+#    highnibble, lownibble = nib(realbytes[index])
+#    b_recode.append(highnibble)
+#    b_recode.append(lownibble)
+#    x = denib(highnibble, lownibble)
+#    if x != realbytes[index]:
+#        print("ERROR: {} != {}".format(x,realbytes[index]))
+#    #else:
+#    #    print("index {:0>2} original: {:02X} recode: {:02X}".format(index, realbytes[index], x))
+#
+## let's play around some more and
+## actually show what the values mean:
+#print("Patch Name: {}".format(name))
+#if realbytes[0] > 63:
+#    print("Distorton ON")
+#if realbytes[1] > 63:
+#    print("Drive ENABLED")
+#if realbytes[2] > 63:
+#    print("Presence ENABLED")
+#if realbytes[3] > 63:
+#    print("Delay ENABLED")
+#if realbytes[4] > 63:
+#    print("Tremolo/Chorus Flange ENABLED")
+#if realbytes[5] > 63:
+#    print("Reverb ENABLED")
+#if realbytes[6] > 63:
+#    print("Noise Gate ENABLED")
+#if realbytes[7] > 63:
+#    print("Bright Switch ON")
+#print("Amp Type: {}".format(realbytes[8]))
+#print("Drive: {}".format(realbytes[9]))
+#print("Drive 2: {}".format(realbytes[10]))
+#print("Bass: {}".format(realbytes[11]))
+#print("Mid: {}".format(realbytes[12]))
+#print("Treble: {}".format(realbytes[13]))
+#print("Presence: {}".format(realbytes[14]))
+#print("Channel Volume: {}".format(realbytes[15]))
