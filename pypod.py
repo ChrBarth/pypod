@@ -45,9 +45,9 @@ def monitor_input(message):
 inport = mido.open_input('USB Midi Cable:USB Midi Cable MIDI 1 24:0')
 inport.callback = monitor_input
 outport = mido.open_output('USB Midi Cable:USB Midi Cable MIDI 1 24:0')
-msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x02, 0x00, 0x01, 0x0c, 0x00, 0x00, 0x00, 0x03, 0x30, 0x32, 0x35, 0x34])
-time.sleep(2)
+msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x01])
 outport.send(msg)
+time.sleep(5)
 
 
 ### TESTING USING amidi:
