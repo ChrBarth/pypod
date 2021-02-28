@@ -6,7 +6,6 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
 
 ## TODO:
 
-* Dump Single Program/Bank/Everything (somewhat working, but only via amidi)
 * Put Settings back on the POD
 * Save Programs to disk (maybe just as .syx-file since mido already supports that)
 * GUI (not decided yet, maybe only curses but with that much settings GTK/QT/??? is probably a better option)
@@ -18,4 +17,5 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
 
 ## CHANGELOG:
 
+* 2021-02-28: Dumping one Program works, the callback function needs some more functionality, maybe a testing sysex to check if the pod is even connected/responding
 * 2021-02-26: After playing around with MIDI in general, sysex-Commands and some "reverse-engineering" in [jsynthlib] (http://www.jsynthlib.org/) I am finally able to send stuff to the POD and receive the response. Thanks to [medias.audiofanzine.com] (https://medias.audiofanzine.com/files/lin020-477344.pdf) I now have a pretty good understanding how to talk to a POD 2.0 via MIDI and from now on most of the work will be regular programming stuff.
