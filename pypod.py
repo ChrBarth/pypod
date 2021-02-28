@@ -18,6 +18,10 @@ for o in outputs:
     # same goes for the midi output:
     if "USB Midi Cable" in o:
         MIDI_OUT = o
+# global variables that get modified by the callback-function:
+msg_bytes = []
+program_name = ""
+
 # }}}
 
 # {{{ Some useful POD-Variables
@@ -147,15 +151,38 @@ def dump_program(program, midi_port):
 ### TESTING USING mido:
 
 def monitor_input(message):
-    print(message)
+    global msg_bytes
+    global program_name
+    print(message.type)
+    # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
+    if message.type == 'sysex' and len(message.bytes()) == 152:
+        msg_bytes = []
+        program_name = ""
+        offset = 9 # data starts after byte 9
+        for x in range(0,71):
+            msg_bytes.append(denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
+            if x > 54:
+                # the last 16 bytes are the program name
+                program_name = program_name+chr(msg_bytes[x])
+        #print(msg_bytes[:])
+        #print(f"Program name: {program_name}")
 
 inport = mido.open_input(MIDI_IN)
 inport.callback = monitor_input
 outport = mido.open_output(MIDI_OUT)
-#msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x01])
-#outport.send(msg)
+
 dump_program("1A", outport)
 time.sleep(1) # we need some time so the callback-function can grab the response
+print(msg_bytes[:])
+print(f"Program name: {program_name}")
+dump_program("9C", outport)
+time.sleep(1)
+print(msg_bytes[:])
+print(f"Program name: {program_name}")
+dump_program("4D", outport)
+time.sleep(1)
+print(msg_bytes[:])
+print(f"Program name: {program_name}")
 
 
 ### TESTING USING amidi:
