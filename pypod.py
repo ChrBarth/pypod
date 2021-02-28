@@ -5,11 +5,36 @@ import subprocess
 import time
 import mido
 
+# MIDI init:
+MIDI_IN  = ""
+MIDI_OUT = ""
+inputs = mido.get_input_names()
+for i in inputs:
+    # we want to use the input that has the string "USB Midi Cable" in its name
+    if "USB Midi Cable" in i:
+        MIDI_IN = i
+outputs = mido.get_output_names()
+for o in outputs:
+    # same goes for the midi output:
+    if "USB Midi Cable" in o:
+        MIDI_OUT = o
+
+# Some useful POD-Variables
+
+# The Program names:
+PROGRAMS = [ "1A", "1B", "1C", "1D",
+             "2A", "2B", "2C", "2D",
+             "3A", "3B", "3C", "3D",
+             "4A", "4B", "4C", "4D",
+             "5A", "5B", "5C", "5D",
+             "6A", "6B", "6C", "6D",
+             "7A", "7B", "7C", "7D",
+             "8A", "8B", "8C", "8D",
+             "9A", "9B", "9C", "9D" ]
 
 CH = 1 # the default pod2 midi-channel
 
-# some pod-midi-commands
-
+# pod-midi-commands (CC)
 AMP_MODEL = 12 # get/set amp-model
 
 def hextoint(hexstring):
@@ -35,6 +60,11 @@ def nib(in_byte):
     lownibble  = in_byte & 0b1111
     return highnibble, lownibble
 
+def dump_program(program, midi_port):
+    # dump a single program from the pod:
+    msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, PROGRAMS.index(program)])
+    midi_port.send(msg)
+
 # testing stuff:
 
 ### TESTING USING mido:
@@ -42,12 +72,13 @@ def nib(in_byte):
 def monitor_input(message):
     print(message)
 
-inport = mido.open_input('USB Midi Cable:USB Midi Cable MIDI 1 24:0')
+inport = mido.open_input(MIDI_IN)
 inport.callback = monitor_input
-outport = mido.open_output('USB Midi Cable:USB Midi Cable MIDI 1 24:0')
-msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x01])
-outport.send(msg)
-time.sleep(5)
+outport = mido.open_output(MIDI_OUT)
+#msg = mido.Message('sysex', data=[0x7e, 0x7f, 0x06, 0x01])
+#outport.send(msg)
+dump_program("1A", outport)
+time.sleep(1) # we need some time so the callback-function can grab the response
 
 
 ### TESTING USING amidi:
