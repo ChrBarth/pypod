@@ -5,7 +5,7 @@ import subprocess
 import time
 import mido
 
-# MIDI init:
+# {{{ MIDI init:
 MIDI_IN  = ""
 MIDI_OUT = ""
 inputs = mido.get_input_names()
@@ -18,8 +18,9 @@ for o in outputs:
     # same goes for the midi output:
     if "USB Midi Cable" in o:
         MIDI_OUT = o
+# }}}
 
-# Some useful POD-Variables
+# {{{ Some useful POD-Variables
 
 # The Program names:
 PROGRAMS = [ "1A", "1B", "1C", "1D",
@@ -32,11 +33,86 @@ PROGRAMS = [ "1A", "1B", "1C", "1D",
              "8A", "8B", "8C", "8D",
              "9A", "9B", "9C", "9D" ]
 
-CH = 1 # the default pod2 midi-channel
+# The Amp Models:
+amp_names = [
+    'Tube Preamp',
+    'POD Clean Line 6',
+    'POD Crunch Line 6',
+    'POD Drive Line 6',
+    'POD Layer Line 6',
+    'Small Tweed',
+    'Tweed Blues',
+    'Black Panel',
+    'Modern Class A',
+    'Brit Class A',
+    'Brit Blues',
+    'Brit Classic',
+    'Brit Hi Gain',
+    'Rectified ’94',
+    'Modern Hi Gain',
+    'Fuzz Box',
+    'Jazz Clean',
+    'Boutique #1',
+    'Boutique #2',
+    'Brit Class A #2',
+    'Brit Class A #3',
+    'Small Tweed #2',
+    'Black Panel #2',
+    'Boutique #3',
+    'California Crunch #1',
+    'California Crunch #2',
+    'Rectified #2',
+    'Modern Hi Gain #2',
+    'Line 6 Twang',
+    'Line 6 Crunch #2',
+    'Line 6 Blues',
+    'Line 6 Insane' ]
 
+# The Cab names:
+cab_names = [
+    "1x 8 ’60 Fender Tweed Champ",
+    "1x12 ’52 Fender Tweed Deluxe",
+    "1x12 ’60 Vox AC15",
+    "1x12 ’64 Fender Blackface Deluxe",
+    "1x12 ’98 Line 6 Flextone",
+    "2x12 ’65 Fender Blackface Twin",
+    "2x12 ’67 VOX AC30",
+    "2x12 ’95 Matchless Chieftain",
+    "2x12 ’98 Pod custom 2x12",
+    "4x10 ’59 Fender Bassman",
+    "4x10 ’98 Pod custom 4x10 cab",
+    "4x12 ’96 Marshall with V30s",
+    "4x12 ’78 Marshall with 70s",
+    "4x12 ’97 Marshall off axis",
+    "4x12 ’98 Pod custom 4x12",
+    "No Cabinet" ]
+
+# The effect types:
+fx_names = [
+    "Chorus2",
+    "Flanger1",
+    "Rotary",
+    "Flanger2",
+    "Delay/Chorus1",
+    "Delay/Tremolo",
+    "Delay",
+    "Delay/Comp",
+    "Chorus1",
+    "Tremolo",
+    "Bypass",
+    "Compressor",
+    "Delay/Chorus2",
+    "Delay/Flanger1",
+    "Delay/Swell",
+    "Delay/Flanger2" ]
+
+CH = 1 # the default pod2 midi-channel
 # pod-midi-commands (CC)
 AMP_MODEL = 12 # get/set amp-model
 
+# }}}
+
+# {{{ general functions:
 def hextoint(hexstring):
     # converts the string to the corresponding integer
     # for example: F0 -> 240
@@ -65,6 +141,7 @@ def dump_program(program, midi_port):
     msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, PROGRAMS.index(program)])
     midi_port.send(msg)
 
+# }}}
 # testing stuff:
 
 ### TESTING USING mido:
