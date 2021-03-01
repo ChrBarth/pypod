@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import subprocess
 #import threading
 import time
@@ -22,20 +23,16 @@ for o in outputs:
 # global variables that get modified by the callback-function:
 msg_bytes = []
 program_name = ""
+manufacturer_id = ""
+product_family = ""
+product_family_member = ""
+pod_version = ""
 
 # }}}
 
-
-CH = 1 # the default pod2 midi-channel
+MIDI_CH = 1 # the default pod2 midi-channel
 # pod-midi-commands (CC)
 AMP_MODEL = 12 # get/set amp-model
-
-# {{{ general functions:
-def hextoint(hexstring):
-    # converts the string to the corresponding integer
-    # for example: F0 -> 240
-    hexstring = "0x" + hexstring
-    return int(hexstring, 16)
 
 def denib(highnibble, lownibble):
     # from https://medias.audiofanzine.com/files/lin020-477344.pdf:
@@ -59,6 +56,12 @@ def dump_program(program, midi_port):
     msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, line6.PROGRAMS.index(program)])
     midi_port.send(msg)
 
+def udq(midi_port):
+    msg = mido.Message('sysex', data=[0x7e, MIDI_CH, 0x06, 0x01])
+    midi_port.send(msg)
+    time.sleep(1)
+
+
 # }}}
 # testing stuff:
 
@@ -67,19 +70,28 @@ def dump_program(program, midi_port):
 def monitor_input(message):
     global msg_bytes
     global program_name
-    print(message.type)
+    global manufacturer_id
+    global pod_version
+    global product_family
+    global product_family_member
+    #print(message.type)
     # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
     if message.type == 'sysex' and len(message.bytes()) == 152:
         msg_bytes = []
         program_name = ""
-        offset = 9 # data starts after byte 9
-        for x in range(0,71):
+        offset = 7 # data starts after byte 9
+        for x in range(0,72):
             msg_bytes.append(denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
             if x > 54:
                 # the last 16 bytes are the program name
                 program_name = program_name+chr(msg_bytes[x])
         #print(msg_bytes[:])
         #print(f"Program name: {program_name}")
+    if message.type == 'sysex' and len(message.bytes()) == 17:
+        pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
+        manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
+        product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
+        product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
 
 try:
     inport = mido.open_input(MIDI_IN)
@@ -93,74 +105,77 @@ try:
 except OSError:
     outport = mido.open_output()
 
+# get infos about the device:
+udq(outport)
+time.sleep(1)
+print("POD Version: {}".format(pod_version))
+print("Manufacturer ID: {}".format(manufacturer_id))
+print("Product Family ID: {}".format(product_family))
+print("Product Family Member: {}".format(product_family_member))
+
 dump_program("1A", outport)
 time.sleep(1) # we need some time so the callback-function can grab the response
-print(msg_bytes[:])
 print(f"Program name: {program_name}")
-dump_program("9C", outport)
-time.sleep(1)
-print(msg_bytes[:])
-print(f"Program name: {program_name}")
-dump_program("4D", outport)
-time.sleep(1)
-print(msg_bytes[:])
-print(f"Program name: {program_name}")
-
-
-### TESTING USING amidi:
-## dump Program 1A
-#cmd = ['amidi', '-p', 'hw:2,0,0', '-S', 'F0 00 01 0C 01 00 00 00 F7', '-d', '-t', '2']
-#data = subprocess.check_output(cmd)
-#b = data.decode("utf-8").replace("\n","").split(" ")
-##print(b)
-#offset = 9 # the first 9 bytes in the response do not count
-#realbytes = []
-#name = ""
-#for x in range(0,71):
-#    realbytes.append(denib(hextoint(b[x*2+offset]), hextoint(b[x*2+offset+1])))
-#    if x>54:
-#        # the last 16 (real) bytes are the patch name:
-#        name = name + chr(realbytes[x])
-##for index in range(len(realbytes)):
-##    print(realbytes[index], hex(realbytes[index]))
-##print(name)
-#
-## test if the nib-function works:
-#b_recode = []
-#for index in range(len(realbytes)):
-#    highnibble, lownibble = nib(realbytes[index])
-#    b_recode.append(highnibble)
-#    b_recode.append(lownibble)
-#    x = denib(highnibble, lownibble)
-#    if x != realbytes[index]:
-#        print("ERROR: {} != {}".format(x,realbytes[index]))
-#    #else:
-#    #    print("index {:0>2} original: {:02X} recode: {:02X}".format(index, realbytes[index], x))
-#
-## let's play around some more and
-## actually show what the values mean:
-#print("Patch Name: {}".format(name))
-#if realbytes[0] > 63:
-#    print("Distorton ON")
-#if realbytes[1] > 63:
-#    print("Drive ENABLED")
-#if realbytes[2] > 63:
-#    print("Presence ENABLED")
-#if realbytes[3] > 63:
-#    print("Delay ENABLED")
-#if realbytes[4] > 63:
-#    print("Tremolo/Chorus Flange ENABLED")
-#if realbytes[5] > 63:
-#    print("Reverb ENABLED")
-#if realbytes[6] > 63:
-#    print("Noise Gate ENABLED")
-#if realbytes[7] > 63:
-#    print("Bright Switch ON")
-#print("Amp Type: {}".format(realbytes[8]))
-#print("Drive: {}".format(realbytes[9]))
-#print("Drive 2: {}".format(realbytes[10]))
-#print("Bass: {}".format(realbytes[11]))
-#print("Mid: {}".format(realbytes[12]))
-#print("Treble: {}".format(realbytes[13]))
-#print("Presence: {}".format(realbytes[14]))
-#print("Channel Volume: {}".format(realbytes[15]))
+if msg_bytes[1] > 63:
+    print("Distorton ON")
+if msg_bytes[2] > 63:
+    print("Drive ENABLED")
+if msg_bytes[3] > 63:
+    print("Presence ENABLED")
+if msg_bytes[4] > 63:
+    print("Delay ENABLED")
+if msg_bytes[5] > 63:
+    print("Tremolo/Chorus Flange ENABLED")
+if msg_bytes[6] > 63:
+    print("Reverb ENABLED")
+if msg_bytes[7] > 63:
+    print("Noise Gate ENABLED")
+if msg_bytes[8] > 63:
+    print("Bright Switch ON")
+print("Amp Type: {}".format(line6.amp_names[msg_bytes[9]]))
+print("Cab Type: {}".format(line6.cab_names[msg_bytes[45]]))
+print("AIR: {}".format(msg_bytes[46]))
+print("Drive: {}".format(msg_bytes[10]))
+print("Drive 2: {}".format(msg_bytes[11]))
+print("Bass: {}".format(msg_bytes[12]))
+print("Mid: {}".format(msg_bytes[13]))
+print("Treble: {}".format(msg_bytes[14]))
+print("Presence: {}".format(msg_bytes[15]))
+print("Channel Volume: {}".format(msg_bytes[16]))
+print("Noise Gate Threshhold: {}".format(msg_bytes[17]))
+print("Noise Gate Decay Time: {}".format(msg_bytes[18]))
+#19-25: Wah and Volume Pedal - since I don't have either, I will keep this out for now
+d_type = "Mono"
+if msg_bytes[26]>63:
+    d_type = "Stereo"
+print("Delay Type: {}".format(d_type))
+# bytes 27-34: Delay L/R time (17 bits each) ???
+print("      L Feedback: {}".format(msg_bytes[35]))
+print("      L Level: {}".format(msg_bytes[37]))
+if d_type == "Stereo":
+    print("      R Level: {}".format(msg_bytes[38]))
+    print("      R Feedback: {}".format(msg_bytes[36]))
+r_type = "Hall"
+if msg_bytes[39]> 63:
+    r_type = "Spring"
+print("Reverb Type: {}".format(r_type))
+print("Reverb Decay: {}".format(msg_bytes[40]))
+print("Reverb Tone: {}".format(msg_bytes[41]))
+print("Reverb Diffusion: {}".format(msg_bytes[42]))
+print("Reverb Density: {}".format(msg_bytes[43]))
+print("Reverb Level: {}".format(msg_bytes[44]))
+print("FX: {}".format(line6.fx_names[msg_bytes[47]]))
+print("FX Tweak: {}".format(msg_bytes[48]))
+comp = "OFF"
+if msg_bytes[47] == 7 or msg_bytes[47] == 11:
+    if msg_bytes[49] == 1:
+        comp = "1.4:1"
+    if msg_bytes[49] == 2:
+        comp = "2:1"
+    if msg_bytes[49] == 3:
+        comp = "3:1"
+    if msg_bytes[49] == 4:
+        comp = "6:1"
+    if msg_bytes[49] == 5:
+        comp = "INF:1"
+    print("Compressor Ratio: {}".format(comp))
