@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import sys
-import subprocess
-#import threading
 import time
 import mido
+import argparse
 import line6
+
+parser = argparse.ArgumentParser('send and receive MIDI from/to Line 6 POD 2.0')
+parser.add_argument('-d', '--dump-program', type=str, help='Dumps given Program (e.g. 2B)' )
+parser.add_argument('-h', '--human-readable', action='store_true', help='display data in human readable format')
+parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
+args=parser.parse_args()
 
 # {{{ MIDI init:
 MIDI_IN  = ""
