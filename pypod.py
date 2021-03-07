@@ -13,7 +13,9 @@ parser.add_argument('-d', '--dump-program', type=str,
 parser.add_argument('-x', '--hex', action='store_true',
                     help='display values in hex instead of decimal')
 parser.add_argument('-u', '--human-readable', action='store_true', help='display data in human readable format')
-parser.add_argument('-s', '--save', type=str, help='Saves Settings to FILENAME', dest='filename')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-s', '--save', type=str, help='Saves Settings to file', dest='tofile')
+group.add_argument('-l', '--load', type=str, help='Loads Settings from file', dest='fromfile')
 parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
 args=parser.parse_args()
 
@@ -72,6 +74,21 @@ def udq(midi_port):
     midi_port.send(msg)
     time.sleep(1)
 
+def parse_progdump(message):
+    global msg_bytes
+    print(len(message))
+    msg_bytes = []
+    program_name = ""
+    offset = 1
+    if len(message) == 152:
+        offset = 7 # data starts after byte 9
+    for x in range(0,72):
+        msg_bytes.append(denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
+        if x > 54:
+            # the last 16 bytes are the program name
+            program_name = program_name+chr(msg_bytes[x])
+    return
+
 def monitor_input(message):
     global msg_bytes
     global program_name
@@ -82,16 +99,7 @@ def monitor_input(message):
     #print(message.type)
     # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
     if message.type == 'sysex' and len(message.bytes()) == 152:
-        msg_bytes = []
-        program_name = ""
-        offset = 7 # data starts after byte 9
-        for x in range(0,72):
-            msg_bytes.append(denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
-            if x > 54:
-                # the last 16 bytes are the program name
-                program_name = program_name+chr(msg_bytes[x])
-        #print(msg_bytes[:])
-        #print(f"Program name: {program_name}")
+        parse_progdump(message)
     elif message.type == 'sysex' and len(message.bytes()) == 17:
         pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
         manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
@@ -191,7 +199,7 @@ def dump(prog_name):
             comp = "INF:1"
         print("Compressor Ratio: {}".format(comp))
 
-def dump_raw(prog, **kwargs):
+def dump_raw(**kwargs):
     if 'filename' in kwargs:
         # if filename is given, dump to syx file:
         # 0xf0 is the first byte of a sysex-command
@@ -208,16 +216,28 @@ def dump_raw(prog, **kwargs):
     else:    
         print(*msg_bytes)
 
-def dump_hex(prog):
+def dump_hex():
     # print values as hex
     hexbytes = []
     for b in msg_bytes[:]:
         hexbytes.append("{:02X}".format(b))
     print(*hexbytes)
 
+def load_syx(filename):
+    print(f"Reading from {filename}")
+    messages = mido.read_syx_file(filename)
+    message = mido.Message('sysex', data=messages[0].data)
+    print(message)
+    parse_progdump(message)
+    dump_hex()
+
 # parse arguments:
 if args.info == True:
     get_info()
+
+if args.fromfile:
+    load_syx(args.fromfile)
+
 if args.program:
     prog = str(args.program)
     try:
@@ -231,9 +251,9 @@ if args.program:
         dump(prog)
     else:
         if args.hex == True:
-            dump_hex(prog)
+            dump_hex()
         else:
-            if args.filename:
-                dump_raw(prog, filename=args.filename)
+            if args.tofile:
+                dump_raw(filename=args.tofile)
             else:
-                dump_raw(prog)
+                dump_raw()
