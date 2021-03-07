@@ -13,6 +13,7 @@ parser.add_argument('-d', '--dump-program', type=str,
 parser.add_argument('-x', '--hex', action='store_true',
                     help='display values in hex instead of decimal')
 parser.add_argument('-u', '--human-readable', action='store_true', help='display data in human readable format')
+parser.add_argument('-s', '--save', type=str, help='Saves Settings to FILENAME', dest='filename')
 parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
 args=parser.parse_args()
 
@@ -91,11 +92,14 @@ def monitor_input(message):
                 program_name = program_name+chr(msg_bytes[x])
         #print(msg_bytes[:])
         #print(f"Program name: {program_name}")
-    if message.type == 'sysex' and len(message.bytes()) == 17:
+    elif message.type == 'sysex' and len(message.bytes()) == 17:
         pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
         manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
         product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
         product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
+    else:
+        print("Unknown message:")
+        print(message.bytes(), len(message.bytes()))
 
 # }}}
 
@@ -187,8 +191,22 @@ def dump(prog_name):
             comp = "INF:1"
         print("Compressor Ratio: {}".format(comp))
 
-def dump_raw(prog):
-    print(*msg_bytes)
+def dump_raw(prog, **kwargs):
+    if 'filename' in kwargs:
+        # if filename is given, dump to syx file:
+        # 0xf0 is the first byte of a sysex-command
+        message = [0xf0]
+        for m in msg_bytes[:]:
+            h,l = nib(m)
+            message.append(h)
+            message.append(l)
+        # 0xf7 is the last byte of a sysex-command
+        message.append(0xf7)
+        # generate mido.Message from message[:]
+        msg = mido.Message.from_bytes(message[:])
+        mido.write_syx_file(kwargs['filename'], (msg,))
+    else:    
+        print(*msg_bytes)
 
 def dump_hex(prog):
     # print values as hex
@@ -215,4 +233,7 @@ if args.program:
         if args.hex == True:
             dump_hex(prog)
         else:
-            dump_raw(prog)
+            if args.filename:
+                dump_raw(prog, filename=args.filename)
+            else:
+                dump_raw(prog)
