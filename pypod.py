@@ -17,11 +17,14 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument('-s', '--save', type=str, help='Saves Settings to file', dest='tofile')
 group.add_argument('-l', '--load', type=str, help='Loads Settings from file', dest='fromfile')
 parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
+parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
+
 args=parser.parse_args()
 
-MIDI_CH = 1 # the default pod2 midi-channel
-# pod-midi-commands (CC)
-AMP_MODEL = 12 # get/set amp-model
+if args.midichan:
+    MIDI_CH = args.midichan
+else:
+    MIDI_CH = 1 # the default pod2 midi-channel
 
 # {{{ MIDI init:
 MIDI_IN  = ""
@@ -76,7 +79,6 @@ def udq(midi_port):
 
 def parse_progdump(message):
     global msg_bytes
-    print(len(message))
     msg_bytes = []
     program_name = ""
     offset = 1
