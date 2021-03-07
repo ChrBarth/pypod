@@ -79,6 +79,7 @@ def udq(midi_port):
 
 def parse_progdump(message):
     global msg_bytes
+    global program_name
     msg_bytes = []
     program_name = ""
     offset = 1
@@ -92,8 +93,6 @@ def parse_progdump(message):
     return
 
 def monitor_input(message):
-    global msg_bytes
-    global program_name
     global manufacturer_id
     global pod_version
     global product_family
@@ -134,6 +133,7 @@ def get_info():
     print("Product Family ID: {}".format(product_family))
     print("Product Family Member: {}".format(product_family_member))
 
+# {{{ dump human readable
 def dump(prog_name):
     print(f"Program: {prog_name}")
     print(f"Program name: {program_name}")
@@ -200,6 +200,7 @@ def dump(prog_name):
         if msg_bytes[49] == 5:
             comp = "INF:1"
         print("Compressor Ratio: {}".format(comp))
+# }}}
 
 def dump_raw(**kwargs):
     if 'filename' in kwargs:
@@ -229,9 +230,13 @@ def load_syx(filename):
     print(f"Reading from {filename}")
     messages = mido.read_syx_file(filename)
     message = mido.Message('sysex', data=messages[0].data)
-    print(message)
     parse_progdump(message)
-    dump_hex()
+    if args.human_readable == True:
+        dump(filename)
+    elif args.hex == True:
+        dump_hex()
+    else:
+        dump_raw()
 
 # parse arguments:
 if args.info == True:
