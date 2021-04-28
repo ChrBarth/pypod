@@ -16,15 +16,19 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
       -x, --hex             display values in hex instead of decimal
       -u, --human-readable  display data in human readable format
       -s TOFILE, --save TOFILE
-                            Saves Settings to file
+                            Saves program data to file
       -l FROMFILE, --load FROMFILE
-                            Loads Settings from file
+                            Loads program data from file
+      -p DEST_PROGRAM, --put DEST_PROGRAM
+                            Uploads program data (from file) to pod
       -i, --info            Shows info about the POD 2.0
       -c MIDICHAN, --channel MIDICHAN
                             Select MIDI-Channel (default: 1)
+      -n PROGNAME, --name PROGNAME
+                            Renames the Program to NAME
 ## TODO:
 
-* Put Settings back on the POD
+* ~put Settings back on the POD~
 * GUI (not decided yet, maybe only curses but with that much settings GTK/QT/??? is probably a better option)
 
 ## REQUIREMENTS:
@@ -34,6 +38,7 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
 
 ## CHANGELOG:
 
+* 2021-04-28: Renaming programs works, uploading a previously saved program dump also works, next step would be to dump a program from pod to pc, modify it, then put it back on the pod
 * 2021-03-07: We are now able to save and load settings to a file. The only thing missing is the ability to upload the patch back to the pod
 * 2021-03-05: Added the ability to pass commandline arguments. For now we can dump a program in hex, decimal and human readable format and we can also show device info. I still haven't figured out how all the multi-byte values (delay-time, chorus/flanger/rotary speed/depth... work)
 * 2021-02-28: Dumping one Program works, the callback function needs some more functionality, maybe a testing sysex to check if the pod is even connected/responding
