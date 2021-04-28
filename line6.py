@@ -85,3 +85,57 @@ fx_names = [
     "Delay/Flanger1",
     "Delay/Swell",
     "Delay/Flanger2" ]
+
+cc_commands = {
+    "AmpModel": 12,             # 0-32 (0=Tube Preamp,...)
+    "Drive": 13,                # 0-127
+    "Bass": 14,                 # 0-127
+    "Mid": 15,                  # 0-127
+    "Treble": 16,               # 0-127
+    "BrightSwitch": 73,         # 0-63: OFF, 64-127: ON
+    "Channel Vol": 17,          # 0-127
+    "Presence": 21,             # 0-127
+    "Noise Gate": 22,           # 0-63: OFF, 64-127: ON
+    "GateThreshhold": 23,       # 0-127
+    "GateDecay": 24,            # 0-127
+    "Effect": 19,               # 0-15 (0=Bypass,...)
+    "EffectTweak": 1,           # 0-127
+    "Distortion": 25,           # 0-63: OFF, 64-127: ON
+    "DriveBoost": 26,           # 0-63: OFF, 64-127: ON
+    "Presence": 27,             # 0-63: OFF, 64-127: ON
+    "Delay": 28,                # 0-63: OFF, 64-127: ON
+    "DelayTime": 30,            # 0-127 = 0-3150ms
+    "DelayTime2": 62,           # 0-127 (Extra precision (???))
+    "DelayRepeats": 32,         # 0-127
+    "DelayLevel": 34,           # 0-127
+    "Reverb": 36,               # 0-63: OFF; 64-127: ON
+    "ReverbType": 37,           # 0-63: SPRING, 64-127: HALL
+    "ReverbDecay": 38,          # 0-127
+    "ReverbTone": 39,           # 0-127
+    "ReverbDiffusion": 40,      # 0-127
+    "ReverbDensity": 41,        # 0-127
+    "ReverbLevel": 18,          # 0-127
+    "CompressionRatio": 42,     # 0-21=OFF, 22-44=1.4:1, 45-67=2:1, 68-90=3:1, 91-113=6:1, 114-127=INF
+    "Wah": 43,                  # 0-63: OFF, 64-127: ON
+    "WahPedal": 4,              # 0-127 (Pedal Position)
+    "WahBottom": 44,            # 0-127 (Bottom frequency)
+    "WahTop": 45,               # 0-127 (Top frequency)
+    "Volume": 7,                # 0-127 (Volume Pedal)
+    "VolumeMin": 46,            # 0-127 ???
+    "VolumePrePost": 47,        # 0-63: PRE TUBE, 64-127: POST TUBE
+    "VolSwell": 48,             # 0-63: OFF, 64-127: ON
+    "VolSwellRamp": 49,         # 0-127
+    "TapTempo": 64,             # 64-127 = A TAP (=sending 2 in a second sets to 120bpm?)
+    "ModulationOnOff": 50,      # 0-63: OFF, 64-127: ON (Chorus/Rotary/Tremolo)
+    "Speed": 51,                # 0-127 (Chorus/Flanger)
+    "Depth": 52,                # 0-127 (Chorus/Flanger)
+    "Feedback": 53,             # 0-63: NEGATIVE: 64-127: POSITIVE
+    "ChorusPreDelay": 54,       # 0-127
+    "RotarySpeed": 55,          # 0-127
+    "RotaryMaxSpeed": 56,       # 0-127
+    "RotaryMinSpeed": 57,       # 0-127
+    "TremoloSpeed": 58,         # 0-127
+    "TremoloDepth": 59,         # 0-127
+    "CabinetType": 71,          # 0-15 (0=No Cab, ...)
+    "AIRAmbienceLevel": 72      # 0-127
+    }
