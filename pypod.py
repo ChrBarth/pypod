@@ -87,9 +87,7 @@ def parse_progdump(message):
         offset = 7 # data starts after byte 9
     for x in range(0,72):
         msg_bytes.append(denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
-        if x > 54:
-            # the last 16 bytes are the program name
-            program_name = program_name+chr(msg_bytes[x])
+    program_name = "".join(map(chr,msg_bytes[55:]))
     return
 
 def monitor_input(message):
@@ -237,6 +235,20 @@ def load_syx(filename):
         dump_hex()
     else:
         dump_raw()
+
+def change_name(new_name):
+    """changes the name string of a patch"""
+    global msg_bytes
+    if len(new_name) > 16:
+        # the maximum length is 16 characters
+        new_name = new_name[:16]
+    if len(new_name) < 16:
+        # fill it up with spaces:
+        new_name = new_name + (" "*(16-len(new_name)))
+    print(msg_bytes[56:])
+    print(f"changing patch name to {new_name}")
+    # create a list of ascii-values
+    msg_bytes[56:] = list(map(ord,new_name))
 
 # parse arguments:
 if args.info == True:
