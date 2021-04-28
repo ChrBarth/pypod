@@ -6,53 +6,6 @@ import mido
 import argparse
 import line6
 
-parser = argparse.ArgumentParser('pypod.py')
-parser.add_argument('-d', '--dump-program', type=str,
-                    help='Dumps given Program (e.g. 2B)',
-                    dest='program')
-parser.add_argument('-x', '--hex', action='store_true',
-                    help='display values in hex instead of decimal')
-parser.add_argument('-u', '--human-readable', action='store_true', help='display data in human readable format')
-group = parser.add_mutually_exclusive_group()
-group.add_argument('-s', '--save', type=str, help='Saves program data to file', dest='tofile')
-group.add_argument('-l', '--load', type=str, help='Loads program data from file', dest='fromfile')
-parser.add_argument('-p', '--put', type=str, help='Uploads program data (from file) to pod', dest='dest_program')
-parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
-parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
-parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
-
-args=parser.parse_args()
-
-if args.midichan:
-    MIDI_CH = args.midichan
-else:
-    MIDI_CH = 1 # the default pod2 midi-channel
-
-# {{{ MIDI init:
-MIDI_IN  = ""
-MIDI_OUT = ""
-inputs = mido.get_input_names()
-for i in inputs:
-    # we want to use the input that has the string "USB Midi Cable" in its name
-    if "USB Midi Cable" in i:
-        MIDI_IN = i
-outputs = mido.get_output_names()
-for o in outputs:
-    # same goes for the midi output:
-    if "USB Midi Cable" in o:
-        MIDI_OUT = o
-# global variables that get modified by the callback-function:
-msg_bytes = []
-program_name = ""
-manufacturer_id = ""
-product_family = ""
-product_family_member = ""
-pod_version = ""
-new_name = ""
-if args.progname:
-    new_name = args.progname    
-# }}}
-
 # {{{ functions:
 def denib(highnibble, lownibble):
     # from https://medias.audiofanzine.com/files/lin020-477344.pdf:
@@ -124,20 +77,6 @@ def monitor_input(message):
         print("Unknown message:")
         print(message.bytes(), len(message.bytes()))
 
-# }}}
-
-try:
-    inport = mido.open_input(MIDI_IN)
-except OSError:
-    # open default instead:
-    inport = mido.open_input()
-inport.callback = monitor_input
-
-try:
-    outport = mido.open_output(MIDI_OUT)
-except OSError:
-    outport = mido.open_output()
-
 def get_info():
     # get infos about the device:
     udq(outport)
@@ -146,6 +85,59 @@ def get_info():
     print("Manufacturer ID: {}".format(manufacturer_id))
     print("Product Family ID: {}".format(product_family))
     print("Product Family Member: {}".format(product_family_member))
+
+def dump_raw(**kwargs):
+    if 'filename' in kwargs:
+        # if filename is given, dump to syx file:
+        # update: create sysex-message so we don't have to manually add the 
+        # first and last byte
+        message = []
+        for m in msg_bytes[:]:
+            h,l = nib(m)
+            message.append(h)
+            message.append(l)
+        msg = mido.Message('sysex', data=message)
+        print(msg.data)
+        print(len(msg.data))
+        mido.write_syx_file(kwargs['filename'], (msg,))
+    else:    
+        print(*msg_bytes)
+
+def dump_hex():
+    # print values as hex
+    hexbytes = []
+    for b in msg_bytes[:]:
+        hexbytes.append("{:02X}".format(b))
+    print(*hexbytes)
+
+def load_syx(filename):
+    global outport
+    print(f"Reading from {filename}")
+    messages = mido.read_syx_file(filename)
+    message = mido.Message('sysex', data=messages[0].data)
+    parse_progdump(message)
+    if args.dest_program:
+        upload_program(args.dest_program, message, outport)
+    if args.human_readable == True:
+        dump(filename)
+    elif args.hex == True:
+        dump_hex()
+    else:
+        dump_raw()
+
+def change_name(new_name):
+    """changes the name string of a patch"""
+    global msg_bytes
+    if len(new_name) > 16:
+        # the maximum length is 16 characters
+        new_name = new_name[:16]
+    if len(new_name) < 16:
+        # fill it up with spaces:
+        new_name = new_name + (" "*(16-len(new_name)))
+    # create a list of ascii-values
+    msg_bytes[56:] = list(map(ord,new_name))
+
+# }}}
 
 # {{{ dump human readable
 def dump(prog_name):
@@ -216,80 +208,87 @@ def dump(prog_name):
         print("Compressor Ratio: {}".format(comp))
 # }}}
 
-def dump_raw(**kwargs):
-    if 'filename' in kwargs:
-        # if filename is given, dump to syx file:
-        # update: create sysex-message so we don't have to manually add the 
-        # first and last byte
-        message = []
-        for m in msg_bytes[:]:
-            h,l = nib(m)
-            message.append(h)
-            message.append(l)
-        msg = mido.Message('sysex', data=message)
-        print(msg.data)
-        print(len(msg.data))
-        mido.write_syx_file(kwargs['filename'], (msg,))
-    else:    
-        print(*msg_bytes)
+if __name__ == '__main__':
+    # argparse:
+    parser = argparse.ArgumentParser('pypod.py')
+    parser.add_argument('-d', '--dump-program', type=str,
+                        help='Dumps given Program (e.g. 2B)',
+                        dest='program')
+    parser.add_argument('-x', '--hex', action='store_true',
+                        help='display values in hex instead of decimal')
+    parser.add_argument('-u', '--human-readable', action='store_true', help='display data in human readable format')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-s', '--save', type=str, help='Saves program data to file', dest='tofile')
+    group.add_argument('-l', '--load', type=str, help='Loads program data from file', dest='fromfile')
+    parser.add_argument('-p', '--put', type=str, help='Uploads program data (from file) to pod', dest='dest_program')
+    parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
+    parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
+    parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
 
-def dump_hex():
-    # print values as hex
-    hexbytes = []
-    for b in msg_bytes[:]:
-        hexbytes.append("{:02X}".format(b))
-    print(*hexbytes)
+    args=parser.parse_args()
 
-def load_syx(filename):
-    global outport
-    print(f"Reading from {filename}")
-    messages = mido.read_syx_file(filename)
-    message = mido.Message('sysex', data=messages[0].data)
-    parse_progdump(message)
-    if args.dest_program:
-        upload_program(args.dest_program, message, outport)
-    if args.human_readable == True:
-        dump(filename)
-    elif args.hex == True:
-        dump_hex()
+    if args.midichan:
+        MIDI_CH = args.midichan
     else:
-        dump_raw()
-
-def change_name(new_name):
-    """changes the name string of a patch"""
-    global msg_bytes
-    if len(new_name) > 16:
-        # the maximum length is 16 characters
-        new_name = new_name[:16]
-    if len(new_name) < 16:
-        # fill it up with spaces:
-        new_name = new_name + (" "*(16-len(new_name)))
-    # create a list of ascii-values
-    msg_bytes[56:] = list(map(ord,new_name))
-
-# parse arguments:
-if args.info == True:
-    get_info()
-
-if args.fromfile:
-    load_syx(args.fromfile)
-
-if args.program:
-    prog = str(args.program)
+        MIDI_CH = 1 # the default pod2 midi-channel
+    # midi init:
+    MIDI_IN  = ""
+    MIDI_OUT = ""
+    inputs = mido.get_input_names()
+    for i in inputs:
+        # we want to use the input that has the string "USB Midi Cable" in its name
+        if "USB Midi Cable" in i:
+            MIDI_IN = i
+    outputs = mido.get_output_names()
+    for o in outputs:
+        # same goes for the midi output:
+        if "USB Midi Cable" in o:
+            MIDI_OUT = o
+    # some vars:
+    msg_bytes = []
+    program_name = ""
+    manufacturer_id = ""
+    product_family = ""
+    product_family_member = ""
+    pod_version = ""
+    new_name = ""
+    if args.progname:
+        new_name = args.progname    
     try:
-        dump_program(prog, outport)
-        time.sleep(1)
-    except ValueError:
-        print("{} is not a valid POD Program name!".format(prog))
-        sys.exit(1)
+        inport = mido.open_input(MIDI_IN)
+    except OSError:
+        # open default instead:
+        inport = mido.open_input()
+    inport.callback = monitor_input
 
-    if args.human_readable == True:
-        dump(prog)
-    else:
-        if args.hex == True:
-            dump_hex()
+    try:
+        outport = mido.open_output(MIDI_OUT)
+    except OSError:
+        outport = mido.open_output()
+
+    # parse arguments:
+    if args.info == True:
+        get_info()
+
+    if args.fromfile:
+        load_syx(args.fromfile)
+
+    if args.program:
+        prog = str(args.program)
+        try:
+            dump_program(prog, outport)
+            time.sleep(1)
+        except ValueError:
+            print("{} is not a valid POD Program name!".format(prog))
+            sys.exit(1)
+
+        if args.human_readable == True:
+            dump(prog)
         else:
-            if args.tofile:
-                dump_raw(filename=args.tofile)
+            if args.hex == True:
+                dump_hex()
             else:
-                dump_raw()
+                if args.tofile:
+                    dump_raw(filename=args.tofile)
+                else:
+                    dump_raw()
