@@ -18,6 +18,7 @@ group.add_argument('-s', '--save', type=str, help='Saves Settings to file', dest
 group.add_argument('-l', '--load', type=str, help='Loads Settings from file', dest='fromfile')
 parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
 parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
+parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
 
 args=parser.parse_args()
 
@@ -46,6 +47,9 @@ manufacturer_id = ""
 product_family = ""
 product_family_member = ""
 pod_version = ""
+new_name = ""
+if args.progname:
+    new_name = args.progname    
 
 # }}}
 
@@ -87,6 +91,8 @@ def parse_progdump(message):
         offset = 7 # data starts after byte 9
     for x in range(0,72):
         msg_bytes.append(denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
+    if new_name != "":
+        change_name(new_name)
     program_name = "".join(map(chr,msg_bytes[55:]))
     return
 
@@ -245,8 +251,6 @@ def change_name(new_name):
     if len(new_name) < 16:
         # fill it up with spaces:
         new_name = new_name + (" "*(16-len(new_name)))
-    print(msg_bytes[56:])
-    print(f"changing patch name to {new_name}")
     # create a list of ascii-values
     msg_bytes[56:] = list(map(ord,new_name))
 
