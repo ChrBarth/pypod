@@ -14,8 +14,9 @@ parser.add_argument('-x', '--hex', action='store_true',
                     help='display values in hex instead of decimal')
 parser.add_argument('-u', '--human-readable', action='store_true', help='display data in human readable format')
 group = parser.add_mutually_exclusive_group()
-group.add_argument('-s', '--save', type=str, help='Saves Settings to file', dest='tofile')
-group.add_argument('-l', '--load', type=str, help='Loads Settings from file', dest='fromfile')
+group.add_argument('-s', '--save', type=str, help='Saves program data to file', dest='tofile')
+group.add_argument('-l', '--load', type=str, help='Loads program data from file', dest='fromfile')
+parser.add_argument('-p', '--put', type=str, help='Uploads program data (from file) to pod', dest='dest_program')
 parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
 parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
 parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
@@ -50,7 +51,6 @@ pod_version = ""
 new_name = ""
 if args.progname:
     new_name = args.progname    
-
 # }}}
 
 # {{{ functions:
@@ -76,6 +76,15 @@ def dump_program(program, midi_port):
     msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, line6.PROGRAMS.index(program)])
     midi_port.send(msg)
 
+def upload_program(program, message, midi_port):
+    # uploads a single program to the pod:
+    msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x00, line6.PROGRAMS.index(program)])
+    # somehow we have to cut the first element, I have no idea why
+    # found out because uploading did not work and compared data-dumps
+    # from jsynthlib with mine and found out I transmitted one extra byte...
+    msg.data += message.data[1:]
+    midi_port.send(msg)
+
 def udq(midi_port):
     msg = mido.Message('sysex', data=[0x7e, MIDI_CH, 0x06, 0x01])
     midi_port.send(msg)
@@ -94,6 +103,7 @@ def parse_progdump(message):
     if new_name != "":
         change_name(new_name)
     program_name = "".join(map(chr,msg_bytes[55:]))
+    #debug:
     return
 
 def monitor_input(message):
@@ -209,16 +219,16 @@ def dump(prog_name):
 def dump_raw(**kwargs):
     if 'filename' in kwargs:
         # if filename is given, dump to syx file:
-        # 0xf0 is the first byte of a sysex-command
-        message = [0xf0]
+        # update: create sysex-message so we don't have to manually add the 
+        # first and last byte
+        message = []
         for m in msg_bytes[:]:
             h,l = nib(m)
             message.append(h)
             message.append(l)
-        # 0xf7 is the last byte of a sysex-command
-        message.append(0xf7)
-        # generate mido.Message from message[:]
-        msg = mido.Message.from_bytes(message[:])
+        msg = mido.Message('sysex', data=message)
+        print(msg.data)
+        print(len(msg.data))
         mido.write_syx_file(kwargs['filename'], (msg,))
     else:    
         print(*msg_bytes)
@@ -231,10 +241,13 @@ def dump_hex():
     print(*hexbytes)
 
 def load_syx(filename):
+    global outport
     print(f"Reading from {filename}")
     messages = mido.read_syx_file(filename)
     message = mido.Message('sysex', data=messages[0].data)
     parse_progdump(message)
+    if args.dest_program:
+        upload_program(args.dest_program, message, outport)
     if args.human_readable == True:
         dump(filename)
     elif args.hex == True:
