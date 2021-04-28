@@ -26,6 +26,10 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
                             Select MIDI-Channel (default: 1)
       -n PROGNAME, --name PROGNAME
                             Renames the Program to NAME
+      -m MIDICC, --midicc MIDICC
+                            Send MIDI CC (needs value!)
+      -v VALUE, --value VALUE
+                            the value to be sent with the CC command
 ## TODO:
 
 * ~put Settings back on the POD~
@@ -38,6 +42,7 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
 
 ## CHANGELOG:
 
+* 2021-04-28b : moved the whole thing into a class and reorganized the code. Added function to send arbitrary MIDI CC commands to the pod (-m CC -v VALUE, both are needed)
 * 2021-04-28: Renaming programs works, uploading a previously saved program dump also works, next step would be to dump a program from pod to pc, modify it, then put it back on the pod
 * 2021-03-07: We are now able to save and load settings to a file. The only thing missing is the ability to upload the patch back to the pod
 * 2021-03-05: Added the ability to pass commandline arguments. For now we can dump a program in hex, decimal and human readable format and we can also show device info. I still haven't figured out how all the multi-byte values (delay-time, chorus/flanger/rotary speed/depth... work)

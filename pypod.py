@@ -156,6 +156,12 @@ class pyPOD:
         # create a list of ascii-values
         self.msg_bytes[56:] = list(map(ord,new_name))
 
+    def send_cc(self, control, value):
+        msg = mido.Message('control_change')
+        msg.control = control
+        msg.value = value
+        self.outport.send(msg)
+
     # }}}
 
     # {{{ dump human readable
@@ -245,6 +251,8 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
     parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
     parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
+    parser.add_argument('-m', '--midicc', type=str, help="Send MIDI CC (needs value!)")
+    parser.add_argument('-v', '--value', type=str, help="the value to be sent with the CC command")
 
     args=parser.parse_args()
 
@@ -267,6 +275,9 @@ if __name__ == '__main__':
 
     if args.midichan:
         pp.midi_channel = args.midichan
+
+    if (args.midicc and args.value):
+        pp.send_cc(int(args.midicc), int(args.value))
 
     pp.msg_bytes = []
     new_name = ""
