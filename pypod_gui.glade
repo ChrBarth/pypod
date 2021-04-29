@@ -2,12 +2,32 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="AadjustmentRotaryMaxSpeed">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmendModSpeed">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmentAmbience">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="AdjustmentBass">
     <property name="upper">127</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="AdjustmentChannelVol">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmentChorusPreDelay">
     <property name="upper">127</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
@@ -43,6 +63,11 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="AdjustmentFeedback">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="AdjustmentGateDecay">
     <property name="upper">127</property>
     <property name="step_increment">1</property>
@@ -54,6 +79,11 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="AdjustmentMids">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmentModDepth">
     <property name="upper">127</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
@@ -88,7 +118,27 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="AdjustmentRotaryMinSpeed">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmentRotarySpeed">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="AdjustmentTreble">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmentTremoloDepth">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="AdjustmentTremoloSpeed">
     <property name="upper">127</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
@@ -923,6 +973,390 @@
                     <property name="top_attach">1</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Modulation</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Chorus/Flanger Speed</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Chorus/Flanger Depth</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Feedback</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Chorus PreDelay</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Rotary Speed</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Rotary Max Speed</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Rotary Min Speed</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Tremolo Speed</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Tremolo Depth</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">A.I.R. Ambience</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Tap Tempo</property>
+                    <property name="justify">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleAIRAmbience">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentAmbience</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onAIRAmbienceChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleModSpeed">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmendModSpeed</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onModSpeedChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleModDepth">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentModDepth</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onModDepthChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleFeedback">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentFeedback</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onFeedbackChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleChorusPreDelay">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentChorusPreDelay</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onChorusPreDelayChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleRotarySpeed">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentRotarySpeed</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onRotarySpeedChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleRotaryMaxSpeed">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AadjustmentRotaryMaxSpeed</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onRotaryMaxSpeedChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleRotaryMinSpeed">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentRotaryMinSpeed</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onRotaryMinSpeedChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleTremoloSpeed">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentTremoloSpeed</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onTremoloSpeedChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="ScaleTremoloDepth">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentTremoloDepth</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onTremoloDepthChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="ButtonTap">
+                    <property name="label" translatable="yes">Tap</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="onButtonTapClicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="SwitchModulation">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <signal name="state-set" handler="onModulationToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
               </object>
             </child>
             <child type="tab">
@@ -1200,32 +1634,6 @@
                   <packing>
                     <property name="left_attach">4</property>
                     <property name="top_attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">end</property>
-                    <property name="valign">center</property>
-                    <property name="label" translatable="yes">Volume Swell</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">4</property>
-                    <property name="top_attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">end</property>
-                    <property name="valign">center</property>
-                    <property name="label" translatable="yes">Volume SwellRamp</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">4</property>
-                    <property name="top_attach">8</property>
                   </packing>
                 </child>
                 <child>
@@ -1533,38 +1941,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScale" id="ScaleVolumeSwellRamp">
-                    <property name="width_request">127</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <property name="adjustment">AdjustmentVolumeSwellRamp</property>
-                    <property name="restrict_to_fill_level">False</property>
-                    <property name="fill_level">64</property>
-                    <property name="round_digits">0</property>
-                    <property name="digits">0</property>
-                    <signal name="change-value" handler="onVolumeSwellRampChange" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">5</property>
-                    <property name="top_attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSwitch" id="SwitchVolumeSwell">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onVolumeSwellToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">5</property>
-                    <property name="top_attach">7</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkComboBox" id="ComboBoxCompressionRatio">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -1626,40 +2002,62 @@
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Volume Swell</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">6</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkSwitch" id="SwitchVolumeSwell">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <signal name="state-set" handler="onVolumeSwellToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">6</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Volume SwellRamp</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">7</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
+                  <object class="GtkScale" id="ScaleVolumeSwellRamp">
+                    <property name="width_request">127</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="adjustment">AdjustmentVolumeSwellRamp</property>
+                    <property name="restrict_to_fill_level">False</property>
+                    <property name="fill_level">64</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <signal name="change-value" handler="onVolumeSwellRampChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">7</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -1682,7 +2080,7 @@
               <object class="GtkLabel" id="FXTab">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Delay/Reverb</property>
+                <property name="label" translatable="yes">More FX</property>
               </object>
               <packing>
                 <property name="menu_label">FX</property>

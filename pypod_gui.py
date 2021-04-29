@@ -56,7 +56,19 @@ class pyPODGUI:
             "onVolumeSwellRampChange": self.change_volumeswellramp,
             "onCompressionRatioChange": self.change_compressionvalue,
             "onReverbTypeChange": self.change_reverbtype,
-            "onVolumePosChange": self.change_volumepos
+            "onVolumePosChange": self.change_volumepos,
+            "onAIRAmbienceChange": self.change_airambience,
+            "onModSpeedChange": self.change_modspeed,
+            "onModDepthChange": self.change_moddepth,
+            "onFeedbackChange": self.change_feedback,
+            "onChorusPreDelayChange": self.change_choruspredelay,
+            "onRotarySpeedChange": self.change_rotaryspeed,
+            "onRotaryMaxSpeedChange": self.change_rotarymaxspeed,
+            "onRotaryMinSpeedChange": self.change_rotaryminspeed,
+            "onTremoloSpeedChange": self.change_tremolospeed,
+            "onTremoloDepthChange": self.change_tremolodepth,
+            "onButtonTapClicked": self.send_tap,
+            "onModulationToggle": self.toggle_modulation
             }
         self.builder.connect_signals(handlers)
         window = self.builder.get_object("MainWindow")
@@ -280,6 +292,56 @@ class pyPODGUI:
         model = self.go("ComboBoxVolumePos").get_model()
         volposval = model[index][0]
         self.pypod.send_cc(47, volposval)
+
+    def change_airambience(self, *args):
+        amb = int(self.go("ScaleAIRAmbience").get_value())
+        self.pypod.send_cc(72, amb)
+
+    def change_modspeed(self, *args):
+        modspeed = int(self.go("ScaleModSpeed").get_value())
+        self.pypod.send_cc(51, modspeed)
+
+    def change_moddepth(self, *args):
+        moddepth = int(self.go("ScaleModDepth").get_value())
+        self.pypod.send_cc(52, moddepth)
+
+    def change_feedback(self, *args):
+        feedback = int(self.go("ScaleFeedback").get_value())
+        self.pypod.send_cc(53, feedback)
+
+    def change_choruspredelay(self, *args):
+        predelay = int(self.go("ScaleChorusPreDelay").get_value())
+        self.pypod.send_cc(54, predelay)
+
+    def change_rotaryspeed(self, *args):
+        rotaryspeed = int(self.go("ScaleRotarySpeed").get_value())
+        self.pypod.send_cc(55, rotaryspeed)
+
+    def change_rotarymaxspeed(self, *args):
+        rotarymaxspeed = int(self.go("ScaleRotaryMaxSpeed").get_value())
+        self.pypod.send_cc(56, rotarymaxspeed)
+
+    def change_rotaryminspeed(self, *args):
+        rotaryminspeed = int(self.go("ScaleRotaryMinSpeed").get_value())
+        self.pypod.send_cc(57, rotaryminspeed)
+    
+    def change_tremolospeed(self, *args):
+        tremolospeed = int(self.go("ScaleTremoloSpeed").get_value())
+        self.pypod.send_cc(58, tremolospeed)
+
+    def change_tremolodepth(self, *args):
+        tremolodepth = int(self.go("ScaleTremoloDepth").get_value())
+        self.pypod.send_cc(59, tremolodepth)
+
+    def send_tap(self, *args):
+        self.pypod.send_cc(64,127)
+
+    def toggle_modulation(self, *args):
+        mod = 127
+        modsw = self.go("SwitchModulation").get_state()
+        if modsw:
+            mod = 0
+        self.pypod.send_cc(50, mod)
 
 if __name__ == '__main__':
     pyPODGUI()
