@@ -18,8 +18,10 @@ class pyPOD:
     inport = mido.open_input()
     outport = mido.open_output()
 
-    def __init__(self, midi_in, midi_out):
+    def __init__(self):
+        pass
 
+    def connect_input(self, midi_in):
         try:
             self.inport = mido.open_input(midi_in)
         except OSError:
@@ -27,6 +29,7 @@ class pyPOD:
             print("error opening input, using default")
             self.inport = mido.open_input()
 
+    def connect_output(self, midi_out):
         try:
             self.outport = mido.open_output(midi_out)
         except OSError:
@@ -166,6 +169,8 @@ class pyPOD:
 
     # {{{ dump human readable
     def dump(self, prog_name):
+        # TODO: Format the output so it can be used as a simple menu
+        # (enter a number to change certain parameters, save, load,...)
         p_name = self.get_program_name()
         print(f"Program: {prog_name}")
         print(f"Program name: {p_name}")
@@ -198,11 +203,15 @@ class pyPOD:
         print("Noise Gate Threshhold: {}".format(self.msg_bytes[17]))
         print("Noise Gate Decay Time: {}".format(self.msg_bytes[18]))
         #19-25: Wah and Volume Pedal - since I don't have either, I will keep this out for now
+        # FIXME: Since I added Wah info to the CC-Commands I will also add it here
         d_type = "Mono"
         if self.msg_bytes[26]>63:
             d_type = "Stereo"
         print("Delay Type: {}".format(d_type))
         # bytes 27-34: Delay L/R time (17 bits each) ???
+        # POD 2.0 says something about double precision of the delay time
+        # for CC 62, we have to experiment with that so see what it means
+        # or just fire up jsynthlib and see what it does ;)
         print("      L Feedback: {}".format(self.msg_bytes[35]))
         print("      L Level: {}".format(self.msg_bytes[37]))
         if d_type == "Stereo":
@@ -271,7 +280,9 @@ if __name__ == '__main__':
             MIDI_OUT = o
     # some vars:
 
-    pp = pyPOD(MIDI_IN, MIDI_OUT)
+    pp = pyPOD()
+    pp.connect_input(MIDI_IN)
+    pp.connect_output(MIDI_OUT)
 
     if args.midichan:
         pp.midi_channel = args.midichan
