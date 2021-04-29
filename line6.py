@@ -139,3 +139,11 @@ cc_commands = {
     "CabinetType": 71,          # 0-15 (0=No Cab, ...)
     "AIRAmbienceLevel": 72      # 0-127
     }
+
+compression_values = [ [ 0, "Off" ],
+    [ 22, "1.4:1" ],
+    [ 45, "2:1"   ],
+    [ 68, "3:1"   ],
+    [ 91, "6:1"   ],
+    [ 114, "INF"  ] ]
+
