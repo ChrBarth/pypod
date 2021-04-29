@@ -147,3 +147,6 @@ compression_values = [ [ 0, "Off" ],
     [ 91, "6:1"   ],
     [ 114, "INF"  ] ]
 
+reverb_types = [ [ 0, "Spring" ], [ 64, "Hall" ] ]
+
+volume_pos = [ [ 0, "Pre-Tube" ], [ 64, "Post-Tube" ] ]
