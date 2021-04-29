@@ -45,7 +45,18 @@ class pyPODGUI:
             "onReverbDecayChange": self.change_reverbdecay,
             "onReverbToneChange": self.change_reverbtone,
             "onReverbDiffusionChange": self.change_reverbdiffusion,
-            "onReverbDensityChange": self.change_reverbdensity
+            "onReverbDensityChange": self.change_reverbdensity,
+            "onWahToggle": self.toggle_wah,
+            "onWahPositionChange": self.change_wahposition,
+            "onWahBottomChange": self.change_wahbottom,
+            "onWahTopChange": self.change_wahtop,
+            "onVolumePedalChange": self.change_volumepedal,
+            "onVolumePedalMinChange": self.change_volumepedalmin,
+            "onVolumeSwellToggle": self.toggle_volumeswell,
+            "onVolumeSwellRampChange": self.change_volumeswellramp,
+            "onCompressionRatioChange": self.change_compressionvalue,
+            "onReverbTypeChange": self.change_reverbtype,
+            "onVolumePosChange": self.change_volumepos
             }
         self.builder.connect_signals(handlers)
         window = self.builder.get_object("MainWindow")
@@ -59,6 +70,15 @@ class pyPODGUI:
         fxlist = self.go("ListStoreEffects")
         for item in line6.fx_names:
             fxlist.append([line6.fx_names.index(item), item])
+        complist = self.go("ListStoreCompressionRatio")
+        for item in line6.compression_values:
+            complist.append(item)
+        revlist = self.go("ListStoreReverbType")
+        for item in line6.reverb_types:
+            revlist.append(item)
+        volumelist = self.go("ListStoreVolumePos")
+        for item in line6.volume_pos:
+            volumelist.append(item)
 
         window.show_all()
 
@@ -197,6 +217,69 @@ class pyPODGUI:
     def change_reverbdensity(self, *args):
         revdens = int(self.go("ScaleReverbDensity").get_value())
         self.pypod.send_cc(41, revdens)
+
+    def toggle_wah(self, *args):
+        wah = 127
+        wahsw = self.go("SwitchWah").get_state()
+        if wahsw:
+            wah = 0
+        self.pypod.send_cc(43, wah)
+
+    def change_wahposition(self, *args):
+        wahpos = int(self.go("ScaleWahPosition").get_value())
+        self.pypod.send_cc(4, wahpos)
+
+    def change_wahbottom(self, *args):
+        wahbottom = int(self.go("ScaleWahBottom").get_value())
+        self.pypod.send_cc(44, wahbottom)
+
+    def change_wahtop(self, *args):
+        wahtop = int(self.go("ScaleWahTop").get_value())
+        self.pypod.send_cc(45, wahtop)
+
+    def change_volumepedal(self, *args):
+        volped = int(self.go("ScaleVolumePedal").get_value())
+        self.pypod.send_cc(7, volped)
+
+    def change_volumepedalmin(self, *args):
+        volpedalmin = int(self.go("ScaleVolumePedalMin").get_value())
+        self.pypod.send_cc(46, volpedalmin)
+
+    def toggle_volumeswell(self, *args):
+        swell = 127
+        swellsw = self.go("SwitchVolumeSwell").get_state()
+        if swellsw:
+            swell = 0
+        self.pypod.send_cc(48, swell)
+
+    def change_volumeswellramp(self, *args):
+        swellramp = int(self.go("ScaleVolumeSwellRamp").get_value())
+        self.pypod.send_cc(49, swellramp)
+
+    def change_compressionvalue(self, *args):
+        index = int(self.go("ComboBoxCompressionRatio").get_active())
+        # the ListStore CompressionRatio has two colums:
+        # the first (index 0) is the midi-value to be sent,
+        # the second (index 1) is the text displayed in the combobox
+        # with get_active() we only get the index, not the actual value
+        # from the first column. To get this value we have to use the model
+        # https://gnipsel.com/glade/glade06b.html
+        model = self.go("ComboBoxCompressionRatio").get_model()
+        compval = model[index][0]
+        liststore = self.go("ListStoreCompressionRatio")
+        self.pypod.send_cc(42, compval)
+
+    def change_reverbtype(self, *args):
+        index = int(self.go("ComboBoxReverbType").get_active())
+        model = self.go("ComboBoxReverbType").get_model()
+        reverbval = model[index][0]
+        self.pypod.send_cc(37, reverbval)
+
+    def change_volumepos(self, *args):
+        index = int(self.go("ComboBoxVolumePos").get_active())
+        model = self.go("ComboBoxVolumePos").get_model()
+        volposval = model[index][0]
+        self.pypod.send_cc(47, volposval)
 
 if __name__ == '__main__':
     pyPODGUI()
