@@ -1,10 +1,8 @@
 # PyPOD
 
-a tool to control the Line6 POD 2.0 via MIDI
+A tool to control the Line6 POD 2.0 via MIDI
 
-Goal is to be able to dump Programs from the POD to PC, tweak some settings and put the modified sounds back on the POD. Also saving presets to disk would be nice.
-
-## USAGE:
+## USAGE command line:
 
 
     usage: pypod.py [-h] [-d PROGRAM] [-x] [-u] [-s TOFILE | -l FROMFILE] [-i] [-c MIDICHAN]
@@ -30,18 +28,24 @@ Goal is to be able to dump Programs from the POD to PC, tweak some settings and 
                             Send MIDI CC (needs value!)
       -v VALUE, --value VALUE
                             the value to be sent with the CC command
+## GUI:
+
+There is also a GUI (pypod_gui.py) based on Gtk and built with glade that is almost completely functional. At least modifying sounds works (and some stuff that is not possible using only the
+buttons on the pod itself like wah, volume pedal, disable/enable reverb, delay, modulation fx...)
+
 ## TODO:
 
-* ~put Settings back on the POD~
-* GUI (not decided yet, maybe only curses but with that much settings GTK/QT/??? is probably a better option)
+* add some more widgets to the gui (save, load, up- and download to/from pod, midi settings, device info)
 
 ## REQUIREMENTS:
 
 * mido (```pip3 install mido```)
 * rtmidi (```sudo apt install python3-rtmidi```) -> installing via pip3 did not work on ubuntu 20.04 (ModuleNotFoundError)
+* python3-gi (```sudo apt install python3-gi```)
 
 ## CHANGELOG:
 
+* 2021-04-29: added pypod_gui.py, a GUI wrapper for pypod.py. There are still some widgets to add but it is mostly working.
 * 2021-04-28b : moved the whole thing into a class and reorganized the code. Added function to send arbitrary MIDI CC commands to the pod (-m CC -v VALUE, both are needed)
 * 2021-04-28: Renaming programs works, uploading a previously saved program dump also works, next step would be to dump a program from pod to pc, modify it, then put it back on the pod
 * 2021-03-07: We are now able to save and load settings to a file. The only thing missing is the ability to upload the patch back to the pod
