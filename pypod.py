@@ -28,6 +28,7 @@ class pyPOD:
             # open default instead:
             print("error opening input, using default")
             self.inport = mido.open_input()
+        self.inport.callback = self.monitor_input
 
     def connect_output(self, midi_out):
         try:
@@ -35,8 +36,6 @@ class pyPOD:
         except OSError:
             print("error opening output, using default")
             self.outport = mido.open_output()
-
-        self.inport.callback = self.monitor_input
 
     def denib(self, highnibble, lownibble):
         # from https://medias.audiofanzine.com/files/lin020-477344.pdf:
