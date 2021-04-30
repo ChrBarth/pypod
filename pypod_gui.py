@@ -123,6 +123,7 @@ class pyPODGUI:
         # }}}
         window.show_all()
 
+    # {{{ signal handling functions:
     def go(self, objname):
         return self.builder.get_object(objname)
 
@@ -387,8 +388,13 @@ class pyPODGUI:
         model = self.go("ComboBoxMIDIOutput").get_model()
         midiout = model[index][0]
         self.pypod.connect_output(midiout)
+    # }}}
 
+    # {{{ file functions
     def save_file(self, *args):
+        """ This function saves the current edit buffer
+            to file. It does NOT save anything if the
+            pod is not connected via MIDI !!! """
         dialog = Gtk.FileChooserDialog(title="select a file", parent=self.go("MainWindow"), action=Gtk.FileChooserAction.SAVE)
         dialog.add_buttons(
             Gtk.STOCK_CANCEL,
@@ -402,7 +408,10 @@ class pyPODGUI:
         if response == Gtk.ResponseType.OK:
             self.pypod.dump_editbuffer()
             time.sleep(1)
-            self.pypod.dump_raw(filename=dialog.get_filename())
+            if len(self.pypod.msg_bytes) < 72:
+                print("ERROR: no data received!")
+            else:
+                self.pypod.dump_raw(filename=dialog.get_filename())
         elif response == Gtk.ResponseType.CANCEL:
             pass
             #print("Cancel!")
@@ -427,10 +436,14 @@ class pyPODGUI:
             #print("Cancel!")
 
         dialog.destroy()
+    # }}}
 
+    # {{{ updateGUI
     def updateGUI(self):
         """ this function updates all the widgets in the GUI after a
-            program was fetched from the pod or loaded from disk """
+            program was fetched from the pod or loaded from disk
+            Some values are not stored in the sysex-dumps:
+            volume swell on/off """
         msg = self.pypod.msg_bytes
         self.go("ComboBoxAmpModel").set_active(msg[9])
         self.go("ComboBoxCabModel").set_active(msg[45])
@@ -450,7 +463,51 @@ class pyPODGUI:
         self.go("SwitchBright").set_state(bright)
         mod = True if msg[5] == 1 else False
         self.go("SwitchModulation").set_state(mod)
-
+        delay = True if msg[4] == 1 else False
+        self.go("SwitchDelay").set_state(delay)
+        reverb = True if msg[6] == 1 else False
+        self.go("SwitchReverb").set_state(reverb)
+        self.go("ScaleChannelVol").set_value(msg[16]*2)
+        self.go("ScaleBass").set_value(msg[12]*2)
+        self.go("ScaleMid").set_value(msg[13]*2)
+        self.go("ScaleTreble").set_value(msg[14]*2)
+        self.go("ScaleGateThresh").set_value(msg[17]*2)
+        self.go("ScaleGateDecay").set_value(msg[18]*2)
+        self.go("ScaleAIRAmbience").set_value(msg[46]*2)
+        self.go("ScaleEffectTweak").set_value(msg[48]*2)
+        self.go("ScaleDrive").set_value(msg[10]*2)
+        self.go("ScalePresence").set_value(msg[15]*2)
+        # from here on it gets a little bit fishy since different effects
+        # share the same bytes (mostly 49-53) and to make things worse,
+        # they sometimes only use certain bits!
+        # the only difference is they have their own CC commands (some at least...)
+        self.go("ScaleModSpeed").set_value(msg[49]) # TODO: msg[50] holds 4 more bits!
+        self.go("ScaleModDepth").set_value(msg[51]) # TODO: msg[52] holds 1 more bit!
+        self.go("ScaleFeedback").set_value(msg[53]*2)
+        self.go("ScaleChorusPreDelay").set_value(msg[54]) # TODO: msg[55] holds 1 more bit!
+        rotfast = 127 if msg[49] == 1 else 0 # this should be just a Switch, no slider
+        self.go("ScaleRotarySpeed").set_value(rotfast)
+        self.go("ScaleRotaryMaxSpeed").set_value(msg[50]) # TODO: msg[51] holds 3 more bits!
+        self.go("ScaleRotaryMinSpeed").set_value(msg[52]) # TODO: msg[53] holds 3 more bits!
+        self.go("ScaleTremoloSpeed").set_value(msg[49]) # TODO: msg[50] holds 3 more bits!
+        self.go("ScaleTremoloDepth").set_value(msg[51])
+        # TODO: Right now we ignore that the delay has stereo capabilities!!!
+        self.go("ScaleDelayTime").set_value(msg[27])
+        self.go("ScaleDelayTime2").set_value(msg[28]) # TODO: +msg[29,30] = 17bits total
+        self.go("ScaleDelayRepeats").set_value(msg[35]*2)
+        self.go("ScaleDelayLevel").set_value(msg[37]*2)
+        self.go("ScaleReverbLevel").set_value(msg[44]*2)
+        self.go("ScaleReverbDecay").set_value(msg[40]*2)
+        self.go("ScaleReverbTone").set_value(msg[41]*2)
+        self.go("ScaleReverbDiffusion").set_value(msg[42]*2)
+        self.go("ScaleReverbDensity").set_value(msg[43]*2)
+        self.go("ScaleWahPosition").set_value(msg[19])
+        self.go("ScaleWahBottom").set_value(msg[20])
+        self.go("ScaleWahTop").set_value(msg[21])
+        self.go("ScaleVolumePedal").set_value(msg[23])
+        self.go("ScaleVolumePedalMin").set_value(msg[24])
+        self.go("ScaleVolumeSwellRamp").set_value(msg[49]*2)
+    # }}}
 
 if __name__ == '__main__':
     pyPODGUI()

@@ -1987,8 +1987,8 @@
                     <property name="label" translatable="yes">Volume Swell</property>
                   </object>
                   <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">6</property>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">7</property>
                   </packing>
                 </child>
                 <child>
@@ -2000,20 +2000,7 @@
                     <signal name="state-set" handler="onVolumeSwellToggle" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">end</property>
-                    <property name="valign">center</property>
-                    <property name="label" translatable="yes">Volume SwellRamp</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
+                    <property name="left_attach">3</property>
                     <property name="top_attach">7</property>
                   </packing>
                 </child>
@@ -2032,7 +2019,20 @@
                     <signal name="change-value" handler="onVolumeSwellRampChange" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="left_attach">1</property>
+                    <property name="left_attach">5</property>
+                    <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">Volume SwellRamp</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">4</property>
                     <property name="top_attach">7</property>
                   </packing>
                 </child>

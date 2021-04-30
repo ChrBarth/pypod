@@ -20,6 +20,7 @@ class pyPOD:
     progname = ""
 
     def __init__(self):
+        self.inport.callback = self.monitor_input
         pass
 
     def connect_input(self, midi_in):
@@ -100,17 +101,20 @@ class pyPOD:
     def monitor_input(self, message):
         # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
         if message.type == 'sysex' and len(message.bytes()) == 152:
+            #print("Received sysex (program dump)")
             self.parse_progdump(message)
         elif message.type == 'sysex' and len(message.bytes()) == 17:
             self.pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
             self.manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
             self.product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
             self.product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
+            #print("Received sysex (device info)")
         elif message.type == 'sysex' and len(message.bytes()) == 151:
             # the editbuffer-dump is one byte shorter than a regular program dump
             dummymsg = mido.Message('sysex', data = [ 0 ])
             message.data = dummymsg.data + message.data
             self.parse_progdump(message)
+            #print("Received sysex (edit buffer)")
         else:
             print("Unknown message:")
             print(message.bytes(), len(message.bytes()))
@@ -135,8 +139,6 @@ class pyPOD:
                 message.append(h)
                 message.append(l)
             msg = mido.Message('sysex', data=message)
-            #print(msg.data)
-            #print(len(msg.data))
             mido.write_syx_file(kwargs['filename'], (msg,))
         else:    
             print(*self.msg_bytes)
@@ -149,7 +151,6 @@ class pyPOD:
         print(*hexbytes)
 
     def load_syx(self, filename):
-        #print(f"Reading from {filename}")
         messages = mido.read_syx_file(filename)
         message = mido.Message('sysex', data=messages[0].data)
         self.parse_progdump(message)
@@ -306,7 +307,6 @@ if __name__ == '__main__':
     if (args.midicc and args.value):
         pp.send_cc(int(args.midicc), int(args.value))
 
-    pp.msg_bytes = []
     if args.progname:
         pp.progname = args.progname    
     # parse arguments:
