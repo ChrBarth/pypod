@@ -17,6 +17,7 @@ class pyPOD:
     product_family_member = ""
     inport = mido.open_input()
     outport = mido.open_output()
+    progname = ""
 
     def __init__(self):
         pass
@@ -89,12 +90,12 @@ class pyPOD:
             offset = 7 # data starts after byte 9
         for x in range(0,72):
             self.msg_bytes.append(self.denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
-        if new_name != "":
-            change_name(new_name)
+        if self.progname != "":
+            self.change_name(self.progname)
         return
 
     def get_program_name(self):
-        return "".join(map(chr,self.msg_bytes[55:]))
+        return "".join(map(chr,self.msg_bytes[56:]))
 
     def monitor_input(self, message):
         # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
@@ -106,7 +107,8 @@ class pyPOD:
             self.product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
             self.product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
         elif message.type == 'sysex' and len(message.bytes()) == 151:
-            dummymsg = mido.Message('sysex', data = [ 1 ])
+            # the editbuffer-dump is one byte shorter than a regular program dump
+            dummymsg = mido.Message('sysex', data = [ 0 ])
             message.data = dummymsg.data + message.data
             self.parse_progdump(message)
         else:
@@ -313,9 +315,8 @@ if __name__ == '__main__':
         pp.send_cc(int(args.midicc), int(args.value))
 
     pp.msg_bytes = []
-    new_name = ""
     if args.progname:
-        new_name = args.progname    
+        pp.progname = args.progname    
     # parse arguments:
     if args.info == True:
         pp.get_info()
