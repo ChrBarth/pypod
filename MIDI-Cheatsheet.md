@@ -91,7 +91,7 @@ _Interesting Note:_
 
 Most parameters can be sent to the pod as a value between 0 and 127 (7 Bits) but internally
 they seem to be saved as 6 bits because when we dump a program certain settings get
-returned in the range of 0 to 63 (6 bits). the data sheed also suggests that those
+returned in the range of 0 to 63 (6 bits). the data sheet also suggests that those
 values are only 6 bits. This is really confusing for debugging since settings we
 send to the pod will not always match when we request them back from the pod via sysex.
 And it took me quite some time to figure that out ;)
