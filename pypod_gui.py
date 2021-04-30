@@ -24,6 +24,7 @@ class pyPODGUI:
             "onMenuOpen": self.open_file,
             "onMenuQuit": Gtk.main_quit,
             "onMenuDownload": self.download_program,
+            "onMenuUpload": self.upload_program,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
             "onEffectChange": self.change_effect,
@@ -395,16 +396,29 @@ class pyPODGUI:
         midiout = model[index][0]
         self.pypod.connect_output(midiout)
     
-    def download_program(self, *args):
-        # display a dialog to specify what to download:
+    def get_combobox_program(self, *args):
         index = self.go("ComboBoxProgram").get_active()
         model = self.go("ComboBoxProgram").get_model()
         program = model[index][0]
-        print(program)
+        return program
+
+    def download_program(self, *args):
+        # display a dialog to specify what to download:
+        program = self.get_combobox_program()
         self.pypod.dump_program(program)
         time.sleep(1)
-        self.updateGUI()
+        if len(self.pypod.msg_bytes) < 72:
+            print("ERROR: No data received!")
+        else:
+            self.updateGUI()
 
+    def upload_program(self, *args):
+        # first, download the edit buffer:
+        self.pypod.dump_editbuffer()
+        time.sleep(1)
+        program = self.get_combobox_program()
+        #self.pypod.dump_raw(".pyPOD_TEMP.syx")
+        self.pypod.upload_program(program)
     # }}}
 
     # {{{ file functions

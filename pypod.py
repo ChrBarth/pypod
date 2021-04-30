@@ -62,21 +62,25 @@ class pyPOD:
 
     def dump_program(self, program):
         # dump a single program from the pod:
+        print(f"Dumping program {program} from pod")
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, line6.PROGRAMS.index(program)])
         self.outport.send(msg)
 
     def upload_editbuffer(self, message):
+        print("Upload edit buffer")
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x01])
         msg.data += message.data[1:]
         self.outport.send(msg)
 
-    def upload_program(self, program, message):
+    def upload_program(self, program):
+        print(f"Upload program {program}")
         # uploads a single program to the pod:
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x00, line6.PROGRAMS.index(program)])
         # somehow we have to cut the first element, I have no idea why
         # found out because uploading did not work and compared data-dumps
         # from jsynthlib with mine and found out I transmitted one extra byte...
-        msg.data += message.data[1:]
+        for byte in self.msg_bytes[1:]:
+            msg.data += self.nib(byte)
         self.outport.send(msg)
 
     def udq(self):
@@ -316,7 +320,7 @@ if __name__ == '__main__':
     if args.fromfile:
         pp.load_syx(args.fromfile)
         if args.dest_program:
-            pp.upload_program(args.dest_program, message)
+            pp.upload_program(args.dest_program)
         if args.human_readable == True:
             pp.dump(args.fromfile)
         elif args.hex == True:
