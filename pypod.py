@@ -176,7 +176,14 @@ class pyPOD:
         msg.control = control
         msg.value = value
         self.outport.send(msg)
+    
+    def get_midioutputs(self):
+        # helper function for the gui app
+        return mido.get_output_names()
 
+    def get_midiinputs(self):
+        # helper function for the gui app
+        return mido.get_input_names()
     # }}}
 
     # {{{ dump human readable
