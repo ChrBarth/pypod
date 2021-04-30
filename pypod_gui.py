@@ -21,6 +21,7 @@ class pyPODGUI:
         handlers = {
             "onDestroy": Gtk.main_quit,
             "onMenuSaveAs": self.save_file,
+            "onMenuOpen": self.open_file,
             "onMenuQuit": Gtk.main_quit,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
@@ -402,12 +403,55 @@ class pyPODGUI:
             self.pypod.dump_editbuffer()
             time.sleep(1)
             self.pypod.dump_raw(filename=dialog.get_filename())
-            #print(dialog.get_filename())
         elif response == Gtk.ResponseType.CANCEL:
-            print("Cancel!")
+            pass
+            #print("Cancel!")
 
         dialog.destroy()
-        
+
+    def open_file(self, *args):
+        dialog = Gtk.FileChooserDialog(title="select a file", parent=self.go("MainWindow"), action=Gtk.FileChooserAction.OPEN)
+        dialog.add_buttons(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_OPEN,
+            Gtk.ResponseType.OK,
+            )
+        #self.add_filters
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.pypod.load_syx(dialog.get_filename())
+            self.updateGUI()
+        elif response == Gtk.ResponseType.CANCEL:
+            pass
+            #print("Cancel!")
+
+        dialog.destroy()
+
+    def updateGUI(self):
+        """ this function updates all the widgets in the GUI after a
+            program was fetched from the pod or loaded from disk """
+        msg = self.pypod.msg_bytes
+        self.go("ComboBoxAmpModel").set_active(msg[9])
+        self.go("ComboBoxCabModel").set_active(msg[45])
+        self.go("ComboBoxEffect").set_active(msg[47])
+        self.go("ComboBoxCompressionRatio").set_active(msg[49])
+        self.go("ComboBoxReverbType").set_active(msg[39])
+        self.go("ComboBoxVolumePos").set_active(msg[25])
+        gate = True if msg[7] == 1 else False
+        self.go("SwitchNoiseGate").set_state(gate)
+        dist = True if msg[1] == 1 else False
+        self.go("SwitchDistortion").set_state(dist)
+        boost = True if msg[2] == 1 else False
+        self.go("SwitchDriveBoost").set_state(boost)
+        presence = True if msg[3] == 1 else False
+        self.go("SwitchPresence").set_state(presence)
+        bright = True if msg[8] == 1 else False
+        self.go("SwitchBright").set_state(bright)
+        mod = True if msg[5] == 1 else False
+        self.go("SwitchModulation").set_state(mod)
+
+
 if __name__ == '__main__':
     pyPODGUI()
     Gtk.main()

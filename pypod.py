@@ -149,7 +149,7 @@ class pyPOD:
         print(*hexbytes)
 
     def load_syx(self, filename):
-        print(f"Reading from {filename}")
+        #print(f"Reading from {filename}")
         messages = mido.read_syx_file(filename)
         message = mido.Message('sysex', data=messages[0].data)
         self.parse_progdump(message)
