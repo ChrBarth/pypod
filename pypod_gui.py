@@ -68,7 +68,8 @@ class pyPODGUI:
             "onTremoloSpeedChange": self.change_tremolospeed,
             "onTremoloDepthChange": self.change_tremolodepth,
             "onButtonTapClicked": self.send_tap,
-            "onModulationToggle": self.toggle_modulation
+            "onModulationToggle": self.toggle_modulation,
+            "onMidiChannelChange": self.change_midichannel
             }
         self.builder.connect_signals(handlers)
         window = self.builder.get_object("MainWindow")
@@ -91,6 +92,10 @@ class pyPODGUI:
         volumelist = self.go("ListStoreVolumePos")
         for item in line6.volume_pos:
             volumelist.append(item)
+        midichanlist = self.go("ListStoreMIDIChannel")
+        midichanlist.append(["ALL"])
+        for chan in range(1, 17):
+            midichanlist.append(["CH" + str(chan)])
 
         window.show_all()
 
@@ -342,6 +347,10 @@ class pyPODGUI:
         if modsw:
             mod = 0
         self.pypod.send_cc(50, mod)
+
+    def change_midichannel(self, *args):
+        midichan = int(self.go("ComboBoxMIDIChannel").get_active())
+        self.pypod.midi_channel = midichan
 
 if __name__ == '__main__':
     pyPODGUI()
