@@ -23,6 +23,7 @@ class pyPODGUI:
             "onMenuSaveAs": self.save_file,
             "onMenuOpen": self.open_file,
             "onMenuQuit": Gtk.main_quit,
+            "onMenuDownload": self.download_program,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
             "onEffectChange": self.change_effect,
@@ -120,6 +121,11 @@ class pyPODGUI:
         midi_inputlist = self.go("ListStoreMIDIInput")
         for input in self.midi_inputs:
             midi_inputlist.append([input])
+
+        programlist = self.go("ListStoreProgram")
+        for program in line6.PROGRAMS:
+            programlist.append([program])
+
         # }}}
         window.show_all()
 
@@ -388,6 +394,17 @@ class pyPODGUI:
         model = self.go("ComboBoxMIDIOutput").get_model()
         midiout = model[index][0]
         self.pypod.connect_output(midiout)
+    
+    def download_program(self, *args):
+        # display a dialog to specify what to download:
+        index = self.go("ComboBoxProgram").get_active()
+        model = self.go("ComboBoxProgram").get_model()
+        program = model[index][0]
+        print(program)
+        self.pypod.dump_program(program)
+        time.sleep(1)
+        self.updateGUI()
+
     # }}}
 
     # {{{ file functions
