@@ -53,10 +53,19 @@ class pyPOD:
         highnibble = in_byte >> 4
         lownibble  = in_byte & 0b1111
         return highnibble, lownibble
+    
+    def dump_editbuffer(self):
+        msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x01])
+        self.outport.send(msg)
 
     def dump_program(self, program):
         # dump a single program from the pod:
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, line6.PROGRAMS.index(program)])
+        self.outport.send(msg)
+
+    def upload_editbuffer(self, message):
+        msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x01])
+        msg.data += message.data[1:]
         self.outport.send(msg)
 
     def upload_program(self, program, message):
@@ -96,6 +105,10 @@ class pyPOD:
             self.manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
             self.product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
             self.product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
+        elif message.type == 'sysex' and len(message.bytes()) == 151:
+            dummymsg = mido.Message('sysex', data = [ 1 ])
+            message.data = dummymsg.data + message.data
+            self.parse_progdump(message)
         else:
             print("Unknown message:")
             print(message.bytes(), len(message.bytes()))
@@ -115,13 +128,13 @@ class pyPOD:
             # update: create sysex-message so we don't have to manually add the 
             # first and last byte
             message = []
-            for m in msg_bytes[:]:
-                h,l = nib(m)
+            for m in self.msg_bytes[:]:
+                h,l = self.nib(m)
                 message.append(h)
                 message.append(l)
             msg = mido.Message('sysex', data=message)
-            print(msg.data)
-            print(len(msg.data))
+            #print(msg.data)
+            #print(len(msg.data))
             mido.write_syx_file(kwargs['filename'], (msg,))
         else:    
             print(*self.msg_bytes)
@@ -249,6 +262,8 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dump-program', type=str,
                         help='Dumps given Program (e.g. 2B)',
                         dest='program')
+    parser.add_argument('-e', '--dump-editbuffer', action='store_true',
+                        help='Dumps the edit buffer', dest='dumpedit')
     parser.add_argument('-x', '--hex', action='store_true',
                         help='display values in hex instead of decimal')
     parser.add_argument('-u', '--human-readable', action='store_true', help='display data in human readable format')
@@ -282,6 +297,7 @@ if __name__ == '__main__':
     pp = pyPOD()
     pp.connect_input(MIDI_IN)
     pp.connect_output(MIDI_OUT)
+    prog = ""
 
     if args.midichan:
         pp.midi_channel = args.midichan
@@ -308,7 +324,11 @@ if __name__ == '__main__':
         except ValueError:
             print("{} is not a valid POD Program name!".format(prog))
             sys.exit(1)
-
+    elif args.dumpedit:
+        pp.dump_editbuffer()
+        time.sleep(1)
+        prog = "Edit Buffer"
+    if prog:
         if args.human_readable == True:
             pp.dump(prog)
         else:
@@ -319,5 +339,4 @@ if __name__ == '__main__':
                     pp.dump_raw(filename=args.tofile)
                 else:
                     pp.dump_raw()
-
 # }}}
