@@ -10,12 +10,13 @@ from gi.repository import Gtk
 class pyPODGUI:
     pypod = pypod.pyPOD()
     builder = ""
+    midi_inputs = []
+    midi_outputs = []
 
     def __init__(self):
-        self.pypod.connect_output('USB Midi Cable:USB Midi Cable MIDI 1 20:0')
-        self.pypod.connect_input('USB Midi Cable:USB Midi Cable MIDI 1 20:0')
         self.builder = Gtk.Builder()
         self.builder.add_from_file("pypod_gui.glade")
+        # {{{ handlers:
         handlers = {
             "onDestroy": Gtk.main_quit,
             "onAmpChange": self.change_amp,
@@ -69,34 +70,53 @@ class pyPODGUI:
             "onTremoloDepthChange": self.change_tremolodepth,
             "onButtonTapClicked": self.send_tap,
             "onModulationToggle": self.toggle_modulation,
-            "onMidiChannelChange": self.change_midichannel
+            "onMidiChannelChange": self.change_midichannel,
+            "onMidiInputChange": self.change_midiinput,
+            "onMidiOutputChange": self.change_midioutput
             }
+        # }}}
         self.builder.connect_signals(handlers)
         window = self.builder.get_object("MainWindow")
-        # fill ComboBoxes:
+        # {{{ fill ComboBoxes:
         amplist = self.go("ListStoreAmps")
         for item in line6.amp_names:
             amplist.append([line6.amp_names.index(item), item])
+
         cablist = self.go("ListStoreCabs")
         for item in line6.cab_names:
             cablist.append([line6.cab_names.index(item), item])
+
         fxlist = self.go("ListStoreEffects")
         for item in line6.fx_names:
             fxlist.append([line6.fx_names.index(item), item])
+
         complist = self.go("ListStoreCompressionRatio")
         for item in line6.compression_values:
             complist.append(item)
+
         revlist = self.go("ListStoreReverbType")
         for item in line6.reverb_types:
             revlist.append(item)
+
         volumelist = self.go("ListStoreVolumePos")
         for item in line6.volume_pos:
             volumelist.append(item)
+
         midichanlist = self.go("ListStoreMIDIChannel")
         midichanlist.append(["ALL"])
         for chan in range(1, 17):
             midichanlist.append(["CH" + str(chan)])
+        
+        self.midi_outputs = self.pypod.get_midioutputs()
+        midi_outputlist = self.go("ListStoreMIDIOutput")
+        for output in self.midi_outputs:
+            midi_outputlist.append([output])
 
+        self.midi_inputs = self.pypod.get_midiinputs()
+        midi_inputlist = self.go("ListStoreMIDIInput")
+        for input in self.midi_inputs:
+            midi_inputlist.append([input])
+        # }}}
         window.show_all()
 
     def go(self, objname):
@@ -351,6 +371,18 @@ class pyPODGUI:
     def change_midichannel(self, *args):
         midichan = int(self.go("ComboBoxMIDIChannel").get_active())
         self.pypod.midi_channel = midichan
+
+    def change_midiinput(self, *args):
+        index = self.go("ComboBoxMIDIInput").get_active()
+        model = self.go("ComboBoxMIDIInput").get_model()
+        midiin = model[index][0]
+        self.pypod.connect_input(midiin)
+
+    def change_midioutput(self, *args):
+        index = self.go("ComboBoxMIDIOutput").get_active()
+        model = self.go("ComboBoxMIDIOutput").get_model()
+        midiout = model[index][0]
+        self.pypod.connect_output(midiout)
 
 if __name__ == '__main__':
     pyPODGUI()

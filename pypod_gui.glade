@@ -211,7 +211,7 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkListStore" id="ListStoreMIDIINput">
+  <object class="GtkListStore" id="ListStoreMIDIInput">
     <columns>
       <!-- column-name MIDI_IN -->
       <column type="gchararray"/>
@@ -2142,7 +2142,14 @@
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
                     <property name="valign">center</property>
-                    <property name="model">ListStoreMIDIINput</property>
+                    <property name="model">ListStoreMIDIInput</property>
+                    <signal name="changed" handler="onMidiInputChange" swapped="no"/>
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2156,6 +2163,13 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="model">ListStoreMIDIOutput</property>
+                    <signal name="changed" handler="onMidiOutputChange" swapped="no"/>
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
