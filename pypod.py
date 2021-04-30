@@ -153,14 +153,6 @@ class pyPOD:
         messages = mido.read_syx_file(filename)
         message = mido.Message('sysex', data=messages[0].data)
         self.parse_progdump(message)
-        if args.dest_program:
-            self.upload_program(args.dest_program, message)
-        if args.human_readable == True:
-            self.dump(filename)
-        elif args.hex == True:
-            self.dump_hex()
-        else:
-            self.dump_raw()
 
     def change_name(self, new_name):
         """changes the name string of a patch"""
@@ -323,6 +315,14 @@ if __name__ == '__main__':
 
     if args.fromfile:
         pp.load_syx(args.fromfile)
+        if args.dest_program:
+            pp.upload_program(args.dest_program, message)
+        if args.human_readable == True:
+            pp.dump(args.fromfile)
+        elif args.hex == True:
+            pp.dump_hex()
+        else:
+            pp.dump_raw()
 
     if args.program:
         prog = str(args.program)
