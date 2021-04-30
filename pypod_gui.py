@@ -3,6 +3,7 @@
 import gi
 import line6
 import pypod
+import time
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -19,6 +20,8 @@ class pyPODGUI:
         # {{{ handlers:
         handlers = {
             "onDestroy": Gtk.main_quit,
+            "onMenuSaveAs": self.save_file,
+            "onMenuQuit": Gtk.main_quit,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
             "onEffectChange": self.change_effect,
@@ -384,6 +387,27 @@ class pyPODGUI:
         midiout = model[index][0]
         self.pypod.connect_output(midiout)
 
+    def save_file(self, *args):
+        dialog = Gtk.FileChooserDialog(title="select a file", parent=self.go("MainWindow"), action=Gtk.FileChooserAction.SAVE)
+        dialog.add_buttons(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_SAVE,
+            Gtk.ResponseType.OK,
+            )
+        #self.add_filters
+        dialog.set_do_overwrite_confirmation(True)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.pypod.dump_editbuffer()
+            time.sleep(1)
+            self.pypod.dump_raw(filename=dialog.get_filename())
+            #print(dialog.get_filename())
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel!")
+
+        dialog.destroy()
+        
 if __name__ == '__main__':
     pyPODGUI()
     Gtk.main()
