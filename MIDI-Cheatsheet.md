@@ -87,6 +87,15 @@ Change Amp1 Channel on Line 6 POD 2.0:
 
 ### MIDI-Dump jsynthlib POD 2.0 get Patch 1A:
 
+_Interesting Note:_
+
+Most parameters can be sent to the pod as a value between 0 and 127 (7 Bits) but internally
+they seem to be saved as 6 bits because when we dump a program certain settings get
+returned in the range of 0 to 63 (6 bits). the data sheed also suggests that those
+values are only 6 bits. This is really confusing for debugging since settings we
+send to the pod will not always match when we request them back from the pod via sysex.
+And it took me quite some time to figure that out ;)
+
 XMIT: SysEX:length=9
   f0 00 01 0c 01 00 00 00 f7
 RECV: SysEX:length=152
