@@ -25,6 +25,7 @@ class pyPODGUI:
             "onMenuQuit": Gtk.main_quit,
             "onMenuDownload": self.download_program,
             "onMenuUpload": self.upload_program,
+            "onMenuDownloadEditBuffer": self.download_editbuffer,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
             "onEffectChange": self.change_effect,
@@ -401,6 +402,14 @@ class pyPODGUI:
         model = self.go("ComboBoxProgram").get_model()
         program = model[index][0]
         return program
+
+    def download_editbuffer(self, *args):
+        self.pypod.dump_editbuffer()
+        time.sleep(1)
+        if len(self.pypod.msg_bytes) < 72:
+            self.pypod.logger.error("ERROR: No data received!")
+        else:
+            self.updateGUI()
 
     def download_program(self, *args):
         # display a dialog to specify what to download:

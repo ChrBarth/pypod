@@ -352,6 +352,16 @@
                         <accelerator key="d" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkMenuItem" id="MenuDownloadEditBuffer">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Download Edit Buffer</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="onMenuDownloadEditBuffer" swapped="no"/>
+                        <accelerator key="e" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -2119,6 +2129,8 @@
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="row_spacing">4</property>
+                <property name="column_spacing">4</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
