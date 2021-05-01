@@ -28,10 +28,15 @@ class pyPOD:
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        if "loglevel" in kwargs.keys():
+            self.set_loglevel(kwargs["loglevel"])
         self.logger.debug('init pyPOD')
         self.inport.callback = self.monitor_input
         self.load_config()
+
+    def set_loglevel(self, loglevel):
+        self.ch.setLevel(loglevel)
 
     def load_config(self):
         self.logger.debug('looking for config')
@@ -341,7 +346,7 @@ if __name__ == '__main__':
 
     args=parser.parse_args()
 
-    pp = pyPOD()
+    pp = pyPOD(loglevel="DEBUG")
     prog = ""
 
     if args.show_midiports:
