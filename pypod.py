@@ -79,8 +79,13 @@ class pyPOD:
         # somehow we have to cut the first element, I have no idea why
         # found out because uploading did not work and compared data-dumps
         # from jsynthlib with mine and found out I transmitted one extra byte...
-        for byte in self.msg_bytes[1:]:
-            msg.data += self.nib(byte)
+        message = mido.Message('sysex')
+        for byte in self.msg_bytes:
+            message.data += self.nib(byte)
+        msg.data += message.data[1:]
+        print(len(message.data))
+        print(msg.data)
+        print(len(msg.data))
         self.outport.send(msg)
 
     def udq(self):
@@ -95,8 +100,8 @@ class pyPOD:
             offset = 7 # data starts after byte 9
         for x in range(0,72):
             self.msg_bytes.append(self.denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
-        if self.progname != "":
-            self.change_name(self.progname)
+        #if self.progname != "":
+        #    self.change_name(self.progname)
         return
 
     def get_program_name(self):
@@ -168,6 +173,7 @@ class pyPOD:
             # fill it up with spaces:
             new_name = new_name + (" "*(16-len(new_name)))
         # create a list of ascii-values
+        print(f"Changing Program name to {new_name}")
         self.msg_bytes[56:] = list(map(ord,new_name))
 
     def send_cc(self, control, value):
@@ -311,8 +317,6 @@ if __name__ == '__main__':
     if (args.midicc and args.value):
         pp.send_cc(int(args.midicc), int(args.value))
 
-    if args.progname:
-        pp.progname = args.progname    
     # parse arguments:
     if args.info == True:
         pp.get_info()
@@ -320,6 +324,8 @@ if __name__ == '__main__':
     if args.fromfile:
         pp.load_syx(args.fromfile)
         if args.dest_program:
+            if args.progname:
+                pp.change_name(args.progname)
             pp.upload_program(args.dest_program)
         if args.human_readable == True:
             pp.dump(args.fromfile)
