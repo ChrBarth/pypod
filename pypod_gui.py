@@ -545,8 +545,18 @@ class pyPODGUI:
         self.go("ScaleTremoloSpeed").set_value(msg[49]) # TODO: msg[50] holds 3 more bits!
         self.go("ScaleTremoloDepth").set_value(msg[51])
         # TODO: Right now we ignore that the delay has stereo capabilities!!!
-        self.go("ScaleDelayTime").set_value(msg[29] & 127) # this should be 27?
-        self.go("ScaleDelayTime2").set_value(msg[30] & 127) # this should be 28?
+        delay = msg[28] << 8
+        delay = delay | msg[29]
+        delay = delay << 8
+        delay = delay | msg[30]
+        delay = int(delay/6)
+        delay2 = delay & 127
+        delay1 = delay >> 8
+        self.pypod.logger.debug(f"delay: {delay:0x} -> {delay2} + {delay1}")
+        self.go("ScaleDelayTime").set_value(delay1*2) # this should be 27?
+        self.go("ScaleDelayTime2").set_value(delay2) # this should be 27?
+        #self.go("ScaleDelayTime").set_value(msg[29] & 127) # this should be 27?
+        #self.go("ScaleDelayTime2").set_value(msg[30] & 127) # this should be 28?
         self.go("ScaleDelayRepeats").set_value(msg[35]*2)
         self.go("ScaleDelayLevel").set_value(msg[37]*2)
         self.go("ScaleReverbLevel").set_value(msg[44]*2)
