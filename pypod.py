@@ -79,6 +79,14 @@ class pyPOD:
             self.logger.warning("error opening output, using default")
             self.outport = mido.open_output()
 
+    def show_midiports(self):
+        # a little helper-function for the command line
+        # run this script with the -o parameter --show-midiports
+        # and put the name of the connected midi-port in the config
+        inports = mido.get_input_names()
+        outports = mido.get_output_names()
+        return inports, outports
+
     def denib(self, highnibble, lownibble):
         # from https://medias.audiofanzine.com/files/lin020-477344.pdf:
         #POD sends and receives Program and Global dump data in High-Low Nibbilized format.
@@ -322,6 +330,7 @@ if __name__ == '__main__':
     group.add_argument('-l', '--load', type=str, help='Loads program data from file', dest='fromfile')
     parser.add_argument('-p', '--put', type=str, help='Uploads program data (from file) to pod', dest='dest_program')
     parser.add_argument('-i', '--info', action='store_true', help='Shows info about the POD 2.0')
+    parser.add_argument('-o', '--show-midiports', action='store_true', help='shows available MIDI-ports')
     parser.add_argument('-c', '--channel', type=int, help='Select MIDI-Channel (default: 1)', dest='midichan')
     parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
     parser.add_argument('-m', '--midicc', type=str, help="Send MIDI CC (needs value!)")
@@ -331,6 +340,15 @@ if __name__ == '__main__':
 
     pp = pyPOD()
     prog = ""
+
+    if args.show_midiports:
+        inports, outports = pp.show_midiports()
+        print("\n*** available MIDI Inputs: ***")
+        for p in inports:
+            print(f"\t{p}")
+        print("\n*** available MIDI Outputs: ***")
+        for p in outports:
+            print(f"\t{p}")
 
     if args.midichan:
         pp.midi_channel = args.midichan
