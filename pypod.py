@@ -171,8 +171,11 @@ class pyPOD:
             message.data = dummymsg.data + message.data
             self.parse_progdump(message)
             self.logger.info("Received sysex (edit buffer)")
+        elif message.type == 'program_change' and len(message.bytes()) == 2:
+            prog = "Edit Buffer" if message.bytes()[1] == 0 else line6.PROGRAMS[message.bytes()[1]-1]
+            self.logger.info(f"Received program_change message: {prog}")
         else:
-            self.logger.warning(f"Unknown message {message.bytes()} ({len(message.bytes())}) bytes:")
+            self.logger.warning(f"Unknown message type {message.type}: {message.bytes()} ({len(message.bytes())}) bytes:")
 
     def get_info(self):
         # get infos about the device:
