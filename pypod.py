@@ -6,6 +6,8 @@ import mido
 import argparse
 import line6
 import logging
+import json
+import os
 
 
 # {{{ the class:
@@ -29,7 +31,35 @@ class pyPOD:
     def __init__(self):
         self.logger.debug('init pyPOD')
         self.inport.callback = self.monitor_input
-        pass
+        self.load_config()
+
+    def load_config(self):
+        self.logger.debug('looking for config')
+        rcfile = "/.pypodrc"
+        homerc = os.environ['HOME'] + rcfile
+        pwdrc  = os.environ['PWD'] + rcfile
+        rcfile = ""
+        config = ""
+        if os.path.isfile(homerc):
+            self.logger.debug(f"found {homerc}")
+            rcfile = homerc
+        elif os.path.isfile(pwdrc):
+            self.logger.debug(f"found {pwdrc}")
+            rcfile = pwdrc
+        else:
+            self.logger.info("no config file found")
+        if rcfile != "":
+            with open(rcfile, "r") as fd:
+                config = json.load(fd)
+            if 'MIDI_IN' in config.keys():
+                self.logger.debug(f"MIDI_IN: {config['MIDI_IN']}")
+                self.connect_input(config['MIDI_IN'])
+            if 'MIDI_OUT' in config.keys():
+                self.logger.debug(f"MIDI_OUT: {config['MIDI_OUT']}")
+                self.connect_output(config['MIDI_OUT'])
+            if 'MIDI_CHAN' in config.keys():
+                self.logger.debug(f"MIDI_CHAN: {config['MIDI_CHAN']}")
+                self.midi_channel = int(config['MIDI_CHAN'])
 
     def connect_input(self, midi_in):
         self.logger.info(f"connecting to input {midi_in}")
@@ -299,24 +329,7 @@ if __name__ == '__main__':
 
     args=parser.parse_args()
 
-    # midi init:
-    MIDI_IN  = ""
-    MIDI_OUT = ""
-    inputs = mido.get_input_names()
-    for i in inputs:
-        # we want to use the input that has the string "USB Midi Cable" in its name
-        if "USB Midi Cable" in i:
-            MIDI_IN = i
-    outputs = mido.get_output_names()
-    for o in outputs:
-        # same goes for the midi output:
-        if "USB Midi Cable" in o:
-            MIDI_OUT = o
-    # some vars:
-
     pp = pyPOD()
-    pp.connect_input(MIDI_IN)
-    pp.connect_output(MIDI_OUT)
     prog = ""
 
     if args.midichan:
