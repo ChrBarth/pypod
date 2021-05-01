@@ -5,12 +5,16 @@ A tool to control the Line6 POD 2.0 via MIDI
 ## USAGE command line:
 
 
-    usage: pypod.py [-h] [-d PROGRAM] [-x] [-u] [-s TOFILE | -l FROMFILE] [-i] [-c MIDICHAN]
-    
+    usage: pypod.py [-h] [-d PROGRAM] [-e] [-x] [-u] [-s TOFILE | -l FROMFILE]
+                    [-p DEST_PROGRAM] [-i] [-o] [-c MIDICHAN] [-n PROGNAME]
+                    [-m MIDICC] [-v VALUE]
+
     optional arguments:
       -h, --help            show this help message and exit
       -d PROGRAM, --dump-program PROGRAM
                             Dumps given Program (e.g. 2B)
+      -e, --dump-editbuffer
+                            Dumps the edit buffer
       -x, --hex             display values in hex instead of decimal
       -u, --human-readable  display data in human readable format
       -s TOFILE, --save TOFILE
@@ -20,6 +24,7 @@ A tool to control the Line6 POD 2.0 via MIDI
       -p DEST_PROGRAM, --put DEST_PROGRAM
                             Uploads program data (from file) to pod
       -i, --info            Shows info about the POD 2.0
+      -o, --show-midiports  shows available MIDI-ports
       -c MIDICHAN, --channel MIDICHAN
                             Select MIDI-Channel (default: 1)
       -n PROGNAME, --name PROGNAME
@@ -28,6 +33,15 @@ A tool to control the Line6 POD 2.0 via MIDI
                             Send MIDI CC (needs value!)
       -v VALUE, --value VALUE
                             the value to be sent with the CC command
+
+We now have support for a config file. The format is json and it can be either stored in the current working or home directory (name is .pypodrc). Here is a sample:
+
+    {
+        "MIDI_IN": "USB Midi Cable:USB Midi Cable MIDI 1 24:0",
+        "MIDI_OUT": "USB Midi Cable:USB Midi Cable MIDI 1 24:0",
+        "MIDI_CHAN": "1"
+    }
+
 ## GUI:
 
 There is also a GUI (pypod_gui.py) based on Gtk and built with glade that is almost completely functional. At least modifying sounds works (and some stuff that is not possible using only the
@@ -45,6 +59,7 @@ buttons on the pod itself like wah, volume pedal, disable/enable reverb, delay, 
 
 ## CHANGELOG:
 
+* 2021-05-01: added logging and support for a simple json-configfile. Also added an option to show the available MIDI-ports for easy config-creation.
 * 2021-04-29: added pypod_gui.py, a GUI wrapper for pypod.py. There are still some widgets to add but it is mostly working.
 * 2021-04-28b : moved the whole thing into a class and reorganized the code. Added function to send arbitrary MIDI CC commands to the pod (-m CC -v VALUE, both are needed)
 * 2021-04-28: Renaming programs works, uploading a previously saved program dump also works, next step would be to dump a program from pod to pc, modify it, then put it back on the pod
