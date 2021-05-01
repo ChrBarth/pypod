@@ -551,9 +551,9 @@ class pyPODGUI:
         delay = delay | msg[30]
         delay = int(delay/6)
         delay2 = delay & 127
-        delay1 = delay >> 8
+        delay1 = delay >> 7
         self.pypod.logger.debug(f"delay: {delay:0x} -> {delay2} + {delay1}")
-        self.go("ScaleDelayTime").set_value(delay1*2) # this should be 27?
+        self.go("ScaleDelayTime").set_value(delay1) # this should be 27?
         self.go("ScaleDelayTime2").set_value(delay2) # this should be 27?
         #self.go("ScaleDelayTime").set_value(msg[29] & 127) # this should be 27?
         #self.go("ScaleDelayTime2").set_value(msg[30] & 127) # this should be 28?
