@@ -26,6 +26,7 @@ class pyPODGUI:
             "onMenuDownload": self.download_program,
             "onMenuUpload": self.upload_program,
             "onMenuDownloadEditBuffer": self.download_editbuffer,
+            "onGetDeviceInfo": self.get_deviceinfo,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
             "onEffectChange": self.change_effect,
@@ -431,6 +432,13 @@ class pyPODGUI:
 
     def update_programname(self, *args):
         self.pypod.change_name(self.go("EntryPatchName").get_text())
+
+    def get_deviceinfo(self, *args):
+        self.pypod.udq()
+        self.go("EntryPODVersion").set_text(self.pypod.pod_version)
+        self.go("EntryManufacturerID").set_text(self.pypod.manufacturer_id)
+        self.go("EntryProductFamilyID").set_text(self.pypod.product_family)
+        self.go("EntryProductFamilyMember").set_text(self.pypod.product_family_member)
 
     # }}}
 
