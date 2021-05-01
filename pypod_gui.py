@@ -408,7 +408,7 @@ class pyPODGUI:
         self.pypod.dump_program(program)
         time.sleep(1)
         if len(self.pypod.msg_bytes) < 72:
-            print("ERROR: No data received!")
+            self.pypod.logger.error("ERROR: No data received!")
         else:
             self.updateGUI()
 
@@ -418,7 +418,6 @@ class pyPODGUI:
         time.sleep(1)
         program = self.get_combobox_program()
         self.update_programname()
-        print(self.pypod.get_program_name())
         self.pypod.upload_program(program)
 
     def update_programname(self, *args):
@@ -445,7 +444,7 @@ class pyPODGUI:
             self.pypod.dump_editbuffer()
             time.sleep(1)
             if len(self.pypod.msg_bytes) < 72:
-                print("ERROR: no data received!")
+                self.pypod.logger.error("ERROR: no data received!")
             else:
                 self.update_programname()
                 self.pypod.dump_raw(filename=dialog.get_filename())

@@ -122,7 +122,7 @@ class pyPOD:
         self.outport.send(msg)
 
     def upload_program(self, program):
-        self.logger.info(f"Upload program {program}")
+        self.logger.info(f"Uploading to program {program}")
         # uploads a single program to the pod:
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x00, line6.PROGRAMS.index(program)])
         # somehow we have to cut the first element, I have no idea why
@@ -132,9 +132,9 @@ class pyPOD:
         for byte in self.msg_bytes:
             message.data += self.nib(byte)
         msg.data += message.data[1:]
-        self.logger.debug(len(message.data))
-        self.logger.debug(msg.data)
-        self.logger.debug(len(msg.data))
+        self.logger.debug(f"message length: {len(message.data)}")
+        self.logger.debug(f"msg.data: {msg.data}")
+        self.logger.debug(f"total length: {len(msg.data)}")
         self.outport.send(msg)
 
     def udq(self):
