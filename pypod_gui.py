@@ -417,8 +417,13 @@ class pyPODGUI:
         self.pypod.dump_editbuffer()
         time.sleep(1)
         program = self.get_combobox_program()
-        #self.pypod.dump_raw(".pyPOD_TEMP.syx")
+        self.update_programname()
+        print(self.pypod.get_program_name())
         self.pypod.upload_program(program)
+
+    def update_programname(self, *args):
+        self.pypod.change_name(self.go("EntryPatchName").get_text())
+
     # }}}
 
     # {{{ file functions
@@ -442,6 +447,7 @@ class pyPODGUI:
             if len(self.pypod.msg_bytes) < 72:
                 print("ERROR: no data received!")
             else:
+                self.update_programname()
                 self.pypod.dump_raw(filename=dialog.get_filename())
         elif response == Gtk.ResponseType.CANCEL:
             pass
@@ -538,6 +544,7 @@ class pyPODGUI:
         self.go("ScaleVolumePedal").set_value(msg[23])
         self.go("ScaleVolumePedalMin").set_value(msg[24])
         self.go("ScaleVolumeSwellRamp").set_value(msg[49]*2)
+        self.go("EntryPatchName").set_text(self.pypod.get_program_name())
     # }}}
 
 if __name__ == '__main__':
