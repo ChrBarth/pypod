@@ -5,6 +5,8 @@ import time
 import mido
 import argparse
 import line6
+import logging
+
 
 # {{{ the class:
 class pyPOD:
@@ -17,26 +19,34 @@ class pyPOD:
     product_family_member = ""
     inport = mido.open_input()
     outport = mido.open_output()
-    progname = ""
+    logger = logging.getLogger("pyPod")
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s -  %(name)s -  %(levelname)s - %(funcName)s - %(message)s')
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
     def __init__(self):
+        self.logger.debug('init pyPOD')
         self.inport.callback = self.monitor_input
         pass
 
     def connect_input(self, midi_in):
+        self.logger.info(f"connecting to input {midi_in}")
         try:
             self.inport = mido.open_input(midi_in)
         except OSError:
             # open default instead:
-            print("error opening input, using default")
+            self.logger.warning("error opening input, using default")
             self.inport = mido.open_input()
         self.inport.callback = self.monitor_input
 
     def connect_output(self, midi_out):
+        self.logger.info(f"connecting to output {midi_out}")
         try:
             self.outport = mido.open_output(midi_out)
         except OSError:
-            print("error opening output, using default")
+            self.logger.warning("error opening output, using default")
             self.outport = mido.open_output()
 
     def denib(self, highnibble, lownibble):
@@ -57,23 +67,24 @@ class pyPOD:
         return highnibble, lownibble
     
     def dump_editbuffer(self):
+        self.logger.info("dumping edit bufer")
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x01])
         self.outport.send(msg)
 
     def dump_program(self, program):
         # dump a single program from the pod:
-        print(f"Dumping program {program} from pod")
+        self.logger.info(f"Dumping program {program} from pod")
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, line6.PROGRAMS.index(program)])
         self.outport.send(msg)
 
     def upload_editbuffer(self, message):
-        print("Upload edit buffer")
+        self.logger.info("Upload edit buffer")
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x01])
         msg.data += message.data[1:]
         self.outport.send(msg)
 
     def upload_program(self, program):
-        print(f"Upload program {program}")
+        self.logger.info(f"Upload program {program}")
         # uploads a single program to the pod:
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x00, line6.PROGRAMS.index(program)])
         # somehow we have to cut the first element, I have no idea why
@@ -83,9 +94,9 @@ class pyPOD:
         for byte in self.msg_bytes:
             message.data += self.nib(byte)
         msg.data += message.data[1:]
-        print(len(message.data))
-        print(msg.data)
-        print(len(msg.data))
+        self.logger.debug(len(message.data))
+        self.logger.debug(msg.data)
+        self.logger.debug(len(msg.data))
         self.outport.send(msg)
 
     def udq(self):
@@ -100,8 +111,6 @@ class pyPOD:
             offset = 7 # data starts after byte 9
         for x in range(0,72):
             self.msg_bytes.append(self.denib(message.bytes()[x*2+offset], message.bytes()[x*2+offset+1]))
-        #if self.progname != "":
-        #    self.change_name(self.progname)
         return
 
     def get_program_name(self):
@@ -110,23 +119,22 @@ class pyPOD:
     def monitor_input(self, message):
         # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
         if message.type == 'sysex' and len(message.bytes()) == 152:
-            print("Received sysex (program dump)")
+            self.logger.info(f"Received sysex (program dump)")
             self.parse_progdump(message)
         elif message.type == 'sysex' and len(message.bytes()) == 17:
             self.pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
             self.manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
             self.product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
             self.product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
-            print("Received sysex (device info)")
+            self.logger.info("Received sysex (device info)")
         elif message.type == 'sysex' and len(message.bytes()) == 151:
             # the editbuffer-dump is one byte shorter than a regular program dump
             dummymsg = mido.Message('sysex', data = [ 0 ])
             message.data = dummymsg.data + message.data
             self.parse_progdump(message)
-            print("Received sysex (edit buffer)")
+            self.logger.info("Received sysex (edit buffer)")
         else:
-            print("Unknown message:")
-            print(message.bytes(), len(message.bytes()))
+            self.logger.warning(f"Unknown message {message.bytes()} ({len(message.bytes())}) bytes:")
 
     def get_info(self):
         # get infos about the device:
@@ -173,7 +181,7 @@ class pyPOD:
             # fill it up with spaces:
             new_name = new_name + (" "*(16-len(new_name)))
         # create a list of ascii-values
-        print(f"Changing Program name to {new_name}")
+        self.logger.info(f"Changing Program name to {new_name}")
         self.msg_bytes[56:] = list(map(ord,new_name))
 
     def send_cc(self, control, value):
@@ -340,7 +348,7 @@ if __name__ == '__main__':
             pp.dump_program(prog)
             time.sleep(1)
         except ValueError:
-            print("{} is not a valid POD Program name!".format(prog))
+            pp.logger.error("{} is not a valid POD Program name!".format(prog))
             sys.exit(1)
     elif args.dumpedit:
         pp.dump_editbuffer()
