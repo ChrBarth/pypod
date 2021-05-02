@@ -252,21 +252,21 @@ class pyPOD:
         p_name = self.get_program_name()
         print(f"Program: {prog_name}")
         print(f"Program name: {p_name}")
-        if self.msg_bytes[1] > 63:
+        if self.msg_bytes[1] > 0:
             print("Distorton ON")
-        if self.msg_bytes[2] > 63:
+        if self.msg_bytes[2] > 0:
             print("Drive ENABLED")
-        if self.msg_bytes[3] > 63:
+        if self.msg_bytes[3] > 0:
             print("Presence ENABLED")
-        if self.msg_bytes[4] > 63:
+        if self.msg_bytes[4] > 0:
             print("Delay ENABLED")
-        if self.msg_bytes[5] > 63:
+        if self.msg_bytes[5] > 0:
             print("Tremolo/Chorus Flange ENABLED")
-        if self.msg_bytes[6] > 63:
+        if self.msg_bytes[6] > 0:
             print("Reverb ENABLED")
-        if self.msg_bytes[7] > 63:
+        if self.msg_bytes[7] > 0:
             print("Noise Gate ENABLED")
-        if self.msg_bytes[8] > 63:
+        if self.msg_bytes[8] > 0:
             print("Bright Switch ON")
         print("Amp Type: {}".format(line6.amp_names[self.msg_bytes[9]]))
         print("Cab Type: {}".format(line6.cab_names[self.msg_bytes[45]]))
@@ -277,35 +277,35 @@ class pyPOD:
         print("Mid: {}".format(self.msg_bytes[13]))
         print("Treble: {}".format(self.msg_bytes[14]))
         print("Presence: {}".format(self.msg_bytes[15]))
-        print("Channel Volume: {}".format(self.msg_bytes[16]))
-        print("Noise Gate Threshhold: {}".format(self.msg_bytes[17]))
-        print("Noise Gate Decay Time: {}".format(self.msg_bytes[18]))
+        print("Channel Volume: {}".format(self.msg_bytes[16]*2))
+        print("Noise Gate Threshhold: {}".format(self.msg_bytes[17]*2))
+        print("Noise Gate Decay Time: {}".format(self.msg_bytes[18]*2))
         #19-25: Wah and Volume Pedal - since I don't have either, I will keep this out for now
         # FIXME: Since I added Wah info to the CC-Commands I will also add it here
-        d_type = "Mono"
-        if self.msg_bytes[26]>63:
-            d_type = "Stereo"
-        print("Delay Type: {}".format(d_type))
+        # this whole stereo delay thing does not seem to work, so we throw it out:
+        #d_type = "Mono"
+        #if self.msg_bytes[26]>63:
+        #    d_type = "Stereo"
+        #print("Delay Type: {}".format(d_type))
         # bytes 27-34: Delay L/R time (17 bits each) ???
         # POD 2.0 says something about double precision of the delay time
         # for CC 62, we have to experiment with that so see what it means
         # or just fire up jsynthlib and see what it does ;)
-        print("      L Feedback: {}".format(self.msg_bytes[35]))
-        print("      L Level: {}".format(self.msg_bytes[37]))
-        if d_type == "Stereo":
-            print("      R Level: {}".format(self.msg_bytes[38]))
-            print("      R Feedback: {}".format(self.msg_bytes[36]))
-        r_type = "Hall"
-        if self.msg_bytes[39]> 63:
-            r_type = "Spring"
+        delay_time = int(((((self.msg_bytes[28] << 8) | self.msg_bytes[29]) << 8) | self.msg_bytes[30])/6)
+        delay_time = int(delay_time * 0.192272)
+        #delay_time = int(delay * 1.1442) # 1.1442 = 3150 / ((2**17) / 6)
+        print("Delay Time: {}ms".format(delay_time))
+        print("Delay Feedback: {}".format(self.msg_bytes[35]))
+        print("Delay Level: {}".format(self.msg_bytes[37]))
+        r_type = "Hall" if self.msg_bytes[39] ==1 else "Spring"
         print("Reverb Type: {}".format(r_type))
-        print("Reverb Decay: {}".format(self.msg_bytes[40]))
-        print("Reverb Tone: {}".format(self.msg_bytes[41]))
-        print("Reverb Diffusion: {}".format(self.msg_bytes[42]))
-        print("Reverb Density: {}".format(self.msg_bytes[43]))
-        print("Reverb Level: {}".format(self.msg_bytes[44]))
+        print("Reverb Decay: {}".format(self.msg_bytes[40]*2))
+        print("Reverb Tone: {}".format(self.msg_bytes[41]*2))
+        print("Reverb Diffusion: {}".format(self.msg_bytes[42]*2))
+        print("Reverb Density: {}".format(self.msg_bytes[43]*2))
+        print("Reverb Level: {}".format(self.msg_bytes[44]*2))
         print("FX: {}".format(line6.fx_names[self.msg_bytes[47]]))
-        print("FX Tweak: {}".format(self.msg_bytes[48]))
+        print("FX Tweak: {}".format(self.msg_bytes[48]*2))
         comp = "OFF"
         if self.msg_bytes[47] == 7 or self.msg_bytes[47] == 11:
             if self.msg_bytes[49] == 1:
