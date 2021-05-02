@@ -577,19 +577,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch" id="SwitchNoiseGate">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onNoiseGateToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">6</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkScale" id="ScaleTreble">
                     <property name="width_request">127</property>
                     <property name="visible">True</property>
@@ -714,19 +701,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch" id="SwitchBright">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onBrightToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">7</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -772,19 +746,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch" id="SwitchPresence">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onPresenceToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">5</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -794,19 +755,6 @@
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="top_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSwitch" id="SwitchDriveBoost">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onDriveBoostToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
                     <property name="top_attach">4</property>
                   </packing>
                 </child>
@@ -822,20 +770,6 @@
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="top_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSwitch" id="SwitchDistortion">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <property name="margin_left">2</property>
-                    <signal name="state-set" handler="onDistortionToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">2</property>
                   </packing>
                 </child>
                 <child>
@@ -1383,6 +1317,86 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkCheckButton" id="CheckButtonNoiseGate">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onNoiseGateToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CheckButtonDistortion">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onDistortionToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CheckButtonDriveBoost">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onDriveBoostToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CheckButtonPresence">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onPresenceToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CheckButtonBright">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onBrightToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
                   <placeholder/>
                 </child>
                 <child>
@@ -1675,19 +1689,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch" id="SwitchDelay">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onDelayToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkScale" id="ScaleDelayTime">
                     <property name="width_request">127</property>
                     <property name="visible">True</property>
@@ -1760,19 +1761,6 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="top_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSwitch" id="SwitchReverb">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <signal name="state-set" handler="onReverbToggle" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -2095,6 +2083,38 @@
                   <packing>
                     <property name="left_attach">4</property>
                     <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CheckButtonDelay">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onDelayToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="CheckButtonReverb">
+                    <property name="label" translatable="yes">On/Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="onReverbToggle" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>

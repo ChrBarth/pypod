@@ -169,10 +169,10 @@ class pyPODGUI:
         self.pypod.send_cc(16, treble)
 
     def toggle_noisegate(self, *args):
-        gate = 127
-        gatesw = self.go("SwitchNoiseGate").get_state()
+        gate = 0
+        gatesw = self.go("CheckbuttonGate").get_active()
         if gatesw:
-            gate = 0
+            gate = 127
         self.pypod.send_cc(22, gate)
 
     def change_noisegate_thresh(self, *args):
@@ -184,10 +184,10 @@ class pyPODGUI:
         self.pypod.send_cc(24, decay)
 
     def toggle_distortion(self, *args):
-        dist = 127
-        distsw = self.go("SwitchDistortion").get_state()
+        dist = 0
+        distsw = self.go("CheckButtonDistortion").get_active()
         if distsw:
-            dist = 0
+            dist = 127
         self.pypod.send_cc(25, dist)
 
     def change_drive(self, *args):
@@ -195,15 +195,15 @@ class pyPODGUI:
         self.pypod.send_cc(13, drive)
 
     def toggle_driveboost(self, *args):
-        driveb = 127
-        drivebsw = self.go("SwitchDriveBoost").get_state()
+        driveb = 0
+        drivebsw = self.go("CheckButtonDriveBoost").get_active()
         if drivebsw:
             driveb = 0
         self.pypod.send_cc(26, driveb)
 
     def toggle_presence(self, *args):
         presence = 0
-        presencesw = self.go("SwitchPresence").get_state()
+        presencesw = self.go("CheckButtonPresence").get_active()
         if presencesw:
             presence = 127
         self.pypod.send_cc(27, presence)
@@ -213,18 +213,19 @@ class pyPODGUI:
         self.pypod.send_cc(21, presence)
 
     def toggle_bright(self, *args):
-        bright = 127
-        brightsw = self.go("SwitchBright").get_state()
+        bright = 0
+        brightsw = self.go("CheckButtonBright").get_active()
         if brightsw:
-            bright = 0
+            bright = 127
         self.pypod.send_cc(73, bright)
 
     def toggle_delay(self, *args):
-        delay = 127
-        delaysw = self.go("SwitchDelay").get_state()
+        delay = 0
+        delaysw = self.go("CheckButtonDelay").get_active()
         if delaysw:
-            delay =0
+            delay = 127
         self.pypod.send_cc(28, delay)
+        self.pypod.logger.debug(f"delay: {delay} (sw: {delaysw})")
 
     def change_delaytime(self, *args):
         delaytime = int(self.go("ScaleDelayTime").get_value())
@@ -243,10 +244,10 @@ class pyPODGUI:
         self.pypod.send_cc(34, delaylevel)
 
     def toggle_reverb(self, *args):
-        rev = 127
-        revsw = self.go("SwitchReverb").get_state()
+        rev = 0
+        revsw = self.go("CheckButtonReverb").get_active()
         if revsw:
-            rev = 0
+            rev = 127
         self.pypod.send_cc(36, rev)
 
     def change_reverblevel(self, *args):
@@ -505,21 +506,21 @@ class pyPODGUI:
         self.go("ComboBoxReverbType").set_active(msg[39])
         self.go("ComboBoxVolumePos").set_active(msg[25])
         gate = True if msg[7] == 1 else False
-        self.go("SwitchNoiseGate").set_state(gate)
+        self.go("CheckButtonNoiseGate").set_active(gate)
         dist = True if msg[1] == 1 else False
-        self.go("SwitchDistortion").set_state(dist)
+        self.go("CheckButtonDistortion").set_active(dist)
         boost = True if msg[2] == 1 else False
-        self.go("SwitchDriveBoost").set_state(boost)
+        self.go("CheckButtonDriveBoost").set_active(boost)
         presence = True if msg[3] == 1 else False
-        self.go("SwitchPresence").set_state(presence)
+        self.go("CheckButtonPresence").set_active(presence)
         bright = True if msg[8] == 1 else False
-        self.go("SwitchBright").set_state(bright)
+        self.go("CheckButtonBright").set_active(bright)
         mod = True if msg[5] == 1 else False
         self.go("SwitchModulation").set_state(mod)
         delay = True if msg[4] == 1 else False
-        self.go("SwitchDelay").set_state(delay)
+        self.go("CheckButtonDelay").set_active(delay)
         reverb = True if msg[6] == 1 else False
-        self.go("SwitchReverb").set_state(reverb)
+        self.go("CheckButtonReverb").set_active(reverb)
         self.go("ScaleChannelVol").set_value(msg[16]*2)
         self.go("ScaleBass").set_value(msg[12]*2)
         self.go("ScaleMid").set_value(msg[13]*2)
@@ -553,10 +554,8 @@ class pyPODGUI:
         delay2 = delay & 127
         delay1 = delay >> 7
         self.pypod.logger.debug(f"delay: {delay:0x} -> {delay2} + {delay1}")
-        self.go("ScaleDelayTime").set_value(delay1) # this should be 27?
-        self.go("ScaleDelayTime2").set_value(delay2) # this should be 27?
-        #self.go("ScaleDelayTime").set_value(msg[29] & 127) # this should be 27?
-        #self.go("ScaleDelayTime2").set_value(msg[30] & 127) # this should be 28?
+        self.go("ScaleDelayTime").set_value(delay1)
+        self.go("ScaleDelayTime2").set_value(delay2)
         self.go("ScaleDelayRepeats").set_value(msg[35]*2)
         self.go("ScaleDelayLevel").set_value(msg[37]*2)
         self.go("ScaleReverbLevel").set_value(msg[44]*2)
