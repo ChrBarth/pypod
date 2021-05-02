@@ -136,12 +136,17 @@ class pyPODGUI:
         midi_outputlist.clear()
         for output in self.midi_outputs:
             midi_outputlist.append([output])
+            if output == self.pypod.outport.name:
+                self.go("ComboBoxMIDIOutput").set_active(self.midi_outputs.index(output))
+
 
         self.midi_inputs = self.pypod.get_midiinputs()
         midi_inputlist = self.go("ListStoreMIDIInput")
         midi_inputlist.clear()
-        for input in self.midi_inputs:
-            midi_inputlist.append([input])
+        for m_input in self.midi_inputs:
+            midi_inputlist.append([m_input])
+            if m_input == self.pypod.inport.name:
+                self.go("ComboBoxMIDIInput").set_active(self.midi_inputs.index(m_input))
 
     def change_amp(self, *args):
         amp_model = self.go("ComboBoxAmpModel").get_active()
