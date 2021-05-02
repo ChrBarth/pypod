@@ -430,7 +430,6 @@
                 <property name="row_homogeneous">True</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="width_request">120</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">end</property>
@@ -2152,12 +2151,11 @@
                 </child>
                 <child>
                   <object class="GtkEntry" id="EntryDelayMS">
-                    <property name="width_request">40</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="editable">False</property>
+                    <property name="has_frame">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2387,6 +2385,7 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="editable">False</property>
+                    <property name="has_frame">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2401,6 +2400,7 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="editable">False</property>
+                    <property name="has_frame">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2415,6 +2415,7 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="editable">False</property>
+                    <property name="has_frame">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2429,6 +2430,7 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="editable">False</property>
+                    <property name="has_frame">False</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
