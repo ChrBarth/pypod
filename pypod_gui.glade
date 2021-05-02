@@ -2186,7 +2186,6 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="model">ListStoreMIDIInput</property>
-                    <signal name="changed" handler="onMidiInputChange" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
@@ -2206,7 +2205,6 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="model">ListStoreMIDIOutput</property>
-                    <signal name="changed" handler="onMidiOutputChange" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
@@ -2361,19 +2359,70 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkButton" id="ButtonUpdateInputs">
+                    <property name="label" translatable="yes">Select Input</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked" handler="onMidiInputChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="ButtonUpdateOutputs">
+                    <property name="label" translatable="yes">Select Output</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked" handler="onMidiOutputChange" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="ButtonRescanMIDI">
+                    <property name="label" translatable="yes">Rescan MIDI Ports</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="halign">start</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked" handler="onRescanMIDI" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="ButtonGetDeviceInfo">
                     <property name="label" translatable="yes">Get Device Info</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="halign">center</property>
+                    <property name="halign">start</property>
                     <property name="valign">center</property>
                     <signal name="clicked" handler="onGetDeviceInfo" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">7</property>
+                    <property name="left_attach">2</property>
+                    <property name="top_attach">3</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

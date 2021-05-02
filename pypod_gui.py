@@ -27,6 +27,7 @@ class pyPODGUI:
             "onMenuUpload": self.upload_program,
             "onMenuDownloadEditBuffer": self.download_editbuffer,
             "onGetDeviceInfo": self.get_deviceinfo,
+            "onRescanMIDI": self.rescanMIDI,
             "onAmpChange": self.change_amp,
             "onCabChange": self.change_cab,
             "onEffectChange": self.change_effect,
@@ -86,6 +87,8 @@ class pyPODGUI:
         self.builder.connect_signals(handlers)
         window = self.builder.get_object("MainWindow")
         # {{{ fill ComboBoxes:
+        self.rescanMIDI()
+
         amplist = self.go("ListStoreAmps")
         for item in line6.amp_names:
             amplist.append([line6.amp_names.index(item), item])
@@ -115,16 +118,6 @@ class pyPODGUI:
         for chan in range(1, 17):
             midichanlist.append(["CH" + str(chan)])
         
-        self.midi_outputs = self.pypod.get_midioutputs()
-        midi_outputlist = self.go("ListStoreMIDIOutput")
-        for output in self.midi_outputs:
-            midi_outputlist.append([output])
-
-        self.midi_inputs = self.pypod.get_midiinputs()
-        midi_inputlist = self.go("ListStoreMIDIInput")
-        for input in self.midi_inputs:
-            midi_inputlist.append([input])
-
         programlist = self.go("ListStoreProgram")
         for program in line6.PROGRAMS:
             programlist.append([program])
@@ -135,6 +128,20 @@ class pyPODGUI:
     # {{{ signal handling functions:
     def go(self, objname):
         return self.builder.get_object(objname)
+
+    def rescanMIDI(self, *args):
+        self.pypod.logger.debug("Scanning for MIDI devices...")
+        self.midi_outputs = self.pypod.get_midioutputs()
+        midi_outputlist = self.go("ListStoreMIDIOutput")
+        midi_outputlist.clear()
+        for output in self.midi_outputs:
+            midi_outputlist.append([output])
+
+        self.midi_inputs = self.pypod.get_midiinputs()
+        midi_inputlist = self.go("ListStoreMIDIInput")
+        midi_inputlist.clear()
+        for input in self.midi_inputs:
+            midi_inputlist.append([input])
 
     def change_amp(self, *args):
         amp_model = self.go("ComboBoxAmpModel").get_active()
