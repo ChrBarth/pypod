@@ -182,7 +182,7 @@ class pyPODGUI:
 
     def toggle_noisegate(self, *args):
         gate = 0
-        gatesw = self.go("CheckbuttonGate").get_active()
+        gatesw = self.go("CheckButtonNoiseGate").get_active()
         if gatesw:
             gate = 127
         self.pypod.send_cc(22, gate)
