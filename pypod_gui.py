@@ -557,7 +557,6 @@ class pyPODGUI:
         self.go("ScaleRotaryMinSpeed").set_value(msg[52]) # TODO: msg[53] holds 3 more bits!
         self.go("ScaleTremoloSpeed").set_value(msg[49]) # TODO: msg[50] holds 3 more bits!
         self.go("ScaleTremoloDepth").set_value(msg[51])
-        # TODO: Right now we ignore that the delay has stereo capabilities!!!
         delay = msg[28] << 8
         delay = delay | msg[29]
         delay = delay << 8
