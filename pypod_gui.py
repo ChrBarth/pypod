@@ -242,10 +242,12 @@ class pyPODGUI:
     def change_delaytime(self, *args):
         delaytime = int(self.go("ScaleDelayTime").get_value())
         self.pypod.send_cc(30, delaytime)
+        self.update_delaytime()
 
     def change_delaytime2(self, *args):
         delaytime2 = int(self.go("ScaleDelayTime2").get_value())
         self.pypod.send_cc(62, delaytime2)
+        self.update_delaytime()
 
     def change_delayrepeats(self, *args):
         delayrepeats = int(self.go("ScaleDelayRepeats").get_value())
@@ -453,6 +455,19 @@ class pyPODGUI:
         self.go("EntryProductFamilyID").set_text(self.pypod.product_family)
         self.go("EntryProductFamilyMember").set_text(self.pypod.product_family_member)
 
+    def calculate_delaytime(self, *args):
+        msg = self.pypod.msg_bytes
+        delay = int(self.go("ScaleDelayTime").get_value())
+        delay2 = int(self.go("ScaleDelayTime2").get_value())
+        delaytime = int(((delay << 7) | delay2) * 0.192272) #3150/16383 steps
+        #delaytime = delay * 25# (3150ms / 127 steps = 25)
+        #delaytime = delaytime + (delay2 * 0.2)
+        self.pypod.logger.debug(f"Delay time: {delaytime}")
+        return delaytime
+
+    def update_delaytime(self, *args):
+        self.go("EntryDelayMS").set_text(str(self.calculate_delaytime()))
+        
     # }}}
 
     # {{{ file functions
@@ -567,6 +582,7 @@ class pyPODGUI:
         self.pypod.logger.debug(f"delay: {delay:0x} -> {delay2} + {delay1}")
         self.go("ScaleDelayTime").set_value(delay1)
         self.go("ScaleDelayTime2").set_value(delay2)
+        self.update_delaytime()
         self.go("ScaleDelayRepeats").set_value(msg[35]*2)
         self.go("ScaleDelayLevel").set_value(msg[37]*2)
         self.go("ScaleReverbLevel").set_value(msg[44]*2)
