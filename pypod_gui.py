@@ -4,6 +4,7 @@ import gi
 import line6
 import pypod
 import time
+import mido
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -13,6 +14,34 @@ class pyPODGUI:
     builder = ""
     midi_inputs = []
     midi_outputs = []
+
+    def callbackMIDI(self, message):
+        # this is the new callback function so we can update the GUI in
+        # realtime when we receive CC-messages because settings were
+        # changed on the pod (by turning a knob or by switching program)
+        # copied from pypod.py:
+        # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
+        if message.type == 'sysex' and len(message.bytes()) == 152:
+            self.pypod.logger.info(f"Received sysex (program dump)")
+            self.pypod.parse_progdump(message)
+        elif message.type == 'sysex' and len(message.bytes()) == 17:
+            self.pypod.pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
+            self.pypod.manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
+            self.pypod.product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
+            self.pypod.product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
+            self.pypod.logger.info("Received sysex (device info)")
+        elif message.type == 'sysex' and len(message.bytes()) == 151:
+            # the editbuffer-dump is one byte shorter than a regular program dump
+            dummymsg = mido.Message('sysex', data = [ 0 ])
+            message.data = dummymsg.data + message.data
+            self.pypod.parse_progdump(message)
+            self.pypod.logger.info("Received sysex (edit buffer)")
+        elif message.type == 'program_change' and len(message.bytes()) == 2:
+            prog = "Edit Buffer" if message.bytes()[1] == 0 else line6.PROGRAMS[message.bytes()[1]-1]
+            self.pypod.logger.info(f"Received program_change message: {prog}")
+            # TODO: Here we need to catch all CC messages and send updates to the GUI
+        else:
+            self.pypod.logger.warning(f"Unknown message type {message.type}: {message.bytes()} ({len(message.bytes())}) bytes:")
 
     def __init__(self):
         self.builder = Gtk.Builder()
@@ -85,6 +114,7 @@ class pyPODGUI:
             }
         # }}}
         self.builder.connect_signals(handlers)
+        self.pypod.inport.callback = self.callbackMIDI
         window = self.builder.get_object("MainWindow")
         # {{{ fill ComboBoxes:
         self.rescanMIDI()
