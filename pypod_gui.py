@@ -39,7 +39,14 @@ class pyPODGUI:
         elif message.type == 'program_change' and len(message.bytes()) == 2:
             prog = "Edit Buffer" if message.bytes()[1] == 0 else line6.PROGRAMS[message.bytes()[1]-1]
             self.pypod.logger.info(f"Received program_change message: {prog}")
-            # TODO: Here we need to catch all CC messages and send updates to the GUI
+            # TODO: Download program
+            if prog == "Edit Buffer":
+                self.download_editbuffer()
+            else:
+                self.go("ComboBoxProgram").set_active(message.bytes()[1]-1)
+                self.download_program()
+        elif message.type == 'control_change':
+            self.updatewidgets(message.bytes())
         else:
             self.pypod.logger.warning(f"Unknown message type {message.type}: {message.bytes()} ({len(message.bytes())}) bytes:")
 
@@ -436,6 +443,7 @@ class pyPODGUI:
         model = self.go("ComboBoxMIDIInput").get_model()
         midiin = model[index][0]
         self.pypod.connect_input(midiin)
+        self.pypod.inport.callback = self.callbackMIDI
 
     def change_midioutput(self, *args):
         index = self.go("ComboBoxMIDIOutput").get_active()
@@ -490,9 +498,6 @@ class pyPODGUI:
         delay = int(self.go("ScaleDelayTime").get_value())
         delay2 = int(self.go("ScaleDelayTime2").get_value())
         delaytime = int(((delay << 7) | delay2) * 0.192272) #3150/16383 steps
-        #delaytime = delay * 25# (3150ms / 127 steps = 25)
-        #delaytime = delaytime + (delay2 * 0.2)
-        self.pypod.logger.debug(f"Delay time: {delaytime}")
         return delaytime
 
     def update_delaytime(self, *args):
@@ -609,7 +614,7 @@ class pyPODGUI:
         delay = int(delay/6)
         delay2 = delay & 127
         delay1 = delay >> 7
-        self.pypod.logger.debug(f"delay: {delay:0x} -> {delay2} + {delay1}")
+        #self.pypod.logger.debug(f"delay: {delay:0x} -> {delay2} + {delay1}")
         self.go("ScaleDelayTime").set_value(delay1)
         self.go("ScaleDelayTime2").set_value(delay2)
         self.update_delaytime()
@@ -627,6 +632,78 @@ class pyPODGUI:
         self.go("ScaleVolumePedalMin").set_value(msg[24])
         self.go("ScaleVolumeSwellRamp").set_value(msg[49]*2)
         self.go("EntryPatchName").set_text(self.pypod.get_program_name())
+    # }}}
+
+    # {{{ updatewidets
+    def updatewidgets(self, m_bytes):
+        self.pypod.logger.debug(f"m_bytes: {m_bytes}")
+        if m_bytes[0] == 176 and len(m_bytes) == 3:
+            # CC received:
+            cc = m_bytes[1]
+            val = m_bytes[2]
+            if cc == 12:
+                self.go("ComboBoxAmpModel").set_active(val)
+            if cc == 71:
+                self.go("ComboBoxCabModel").set_active(val)
+            if cc == 19:
+                self.go("ComboBoxEffect").set_active(val)
+            if cc == 17:
+                self.go("ScaleChannelVol").set_value(val)
+            if cc == 14:
+                self.go("ScaleBass").set_value(val)
+            if cc == 15:
+                self.go("ScaleMid").set_value(val)
+            if cc == 16:
+                self.go("ScaleTreble").set_value(val)
+            if cc == 23:
+                self.go("ScaleGateThresh").set_value(val)
+            if cc == 24:
+                self.go("ScaleGateDecay").set_value(val)
+            if cc == 72:
+                self.go("ScaleAIRAmbience").set_value(val)
+            if cc == 1:
+                self.go("ScaleEffectTweak").set_value(val)
+            if cc == 13:
+                self.go("ScaleDrive").set_value(val)
+            if cc == 21:
+                self.go("ScalePresence").set_value(val)
+            if cc == 51:
+                self.go("ScaleModSpeed").set_value(val)
+            if cc == 52:
+                self.go("ScaleModDepth").set_value(val)
+            if cc == 53:
+                self.go("ScaleFeedback").set_value(val)
+            if cc == 54:
+                self.go("ScaleChorusPreDelay").set_value(val)
+            if cc == 55:
+                self.go("ScaleRotarySpeed").set_value(val)
+            if cc == 56:
+                self.go("ScaleRotaryMaxSpeed").set_value(val)
+            if cc == 57:
+                self.go("ScaleRotaryMinSpeed").set_value(val)
+            if cc == 58:
+                self.go("ScaleTremoloSpeed").set_value(val)
+            if cc == 59:
+                self.go("ScaleTremoloDepth").set_value(val)
+            if cc == 22:
+                gate = True if val > 0 else False
+                self.go("CheckButtonNoiseGate").set_active(gate)
+            if cc == 25:
+                dist = True if val > 0 else False
+                self.go("CheckButtonDistortion").set_active(dist)
+            if cc == 26:
+                boost = True if val > 0 else False
+                self.go("CheckButtonDriveBoost").set_active(boost)
+            if cc == 27:
+                presence = True if val > 0 else False
+                self.go("CheckButtonPresence").set_active(presence)
+            if cc == 73:
+                bright = True if val > 0 else False
+                self.go("CheckButtonBright").set_active(bright)
+            if cc == 34:
+                self.go("ScaleDelayLevel").set_value(val)
+            if cc == 32:
+                self.go("ScaleDelayFeedback").set_value(val)
     # }}}
 
 if __name__ == '__main__':
