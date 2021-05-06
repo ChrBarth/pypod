@@ -43,7 +43,7 @@ class pyPODGUI:
             if prog == "Edit Buffer":
                 self.download_editbuffer()
             else:
-                self.go("ComboBoxProgram").set_active(message.bytes()[1]-1)
+                self.go("ComboBoxProgram").set_active(int(message.bytes()[1]-1))
                 self.download_program()
         elif message.type == 'control_change':
             self.updatewidgets(message.bytes())
