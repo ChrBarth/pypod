@@ -703,7 +703,7 @@ class pyPODGUI:
             if cc == 34:
                 self.go("ScaleDelayLevel").set_value(val)
             if cc == 32:
-                self.go("ScaleDelayFeedback").set_value(val)
+                self.go("ScaleDelayRepeats").set_value(val)
     # }}}
 
 if __name__ == '__main__':
