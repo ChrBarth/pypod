@@ -10,7 +10,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class pyPODGUI:
-    pypod = pypod.pyPOD()
+    pypod = pypod.pyPOD(loglevel="DEBUG")
     builder = ""
     midi_inputs = []
     midi_outputs = []
