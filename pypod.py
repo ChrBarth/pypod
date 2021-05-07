@@ -236,6 +236,11 @@ class pyPOD:
         msg.value = value
         self.outport.send(msg)
     
+    def send_pc(self, program):
+        msg = mido.Message('program_change')
+        msg.program = program
+        self.outport.send(msg)
+    
     def get_midioutputs(self):
         # helper function for the gui app
         return mido.get_output_names()
@@ -343,6 +348,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', type=str, help='Renames the Program to NAME', dest='progname')
     parser.add_argument('-m', '--midicc', type=str, help="Send MIDI CC (needs value!)")
     parser.add_argument('-v', '--value', type=str, help="the value to be sent with the CC command")
+    parser.add_argument('-r', '--progam-change', type=str, help="sends program change", dest="progchange")
 
     args=parser.parse_args()
 
@@ -363,6 +369,14 @@ if __name__ == '__main__':
 
     if (args.midicc and args.value):
         pp.send_cc(int(args.midicc), int(args.value))
+
+    if (args.progchange):
+        prog = 0
+        if args.progchange in line6.PROGRAMS:
+            prog = line6.PROGRAMS.index(args.progchange) + 1
+        else:
+            prog = int(args.progchange)
+        pp.send_pc(prog)
 
     # parse arguments:
     if args.info == True:
