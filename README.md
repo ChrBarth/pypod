@@ -4,10 +4,9 @@ A tool to control the Line6 POD 2.0 via MIDI
 
 ## USAGE command line:
 
-
     usage: pypod.py [-h] [-d PROGRAM] [-e] [-x] [-u] [-s TOFILE | -l FROMFILE]
                     [-p DEST_PROGRAM] [-i] [-o] [-c MIDICHAN] [-n PROGNAME]
-                    [-m MIDICC] [-v VALUE]
+                    [-m MIDICC] [-v VALUE] [-r PROGCHANGE]
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -33,6 +32,8 @@ A tool to control the Line6 POD 2.0 via MIDI
                             Send MIDI CC (needs value!)
       -v VALUE, --value VALUE
                             the value to be sent with the CC command
+      -r PROGCHANGE, --progam-change PROGCHANGE
+                            sends program change
 
 We now have support for a config file. The format is json and it can be either stored in the current working or home directory (name is .pypodrc). Here is a sample:
 
