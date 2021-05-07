@@ -51,11 +51,15 @@ buttons on the pod itself like wah, volume pedal, disable/enable reverb, delay, 
 ## TODO:
 
 * needs some testing, finding and fixing bugs
+* possibility to send arbitrary CC and Program Change commands to the pod
 
 ## REQUIREMENTS:
 
 * mido (```pip3 install mido```)
 * rtmidi (```sudo apt install python3-rtmidi```) -> installing via pip3 did not work on ubuntu 20.04 (ModuleNotFoundError)
+
+GUI version:
+
 * python3-gi (```sudo apt install python3-gi```)
 
 ## CHANGELOG:
