@@ -287,18 +287,10 @@ class pyPOD:
         print("Noise Gate Decay Time: {}".format(self.msg_bytes[18]*2))
         #19-25: Wah and Volume Pedal - since I don't have either, I will keep this out for now
         # FIXME: Since I added Wah info to the CC-Commands I will also add it here
-        # this whole stereo delay thing does not seem to work, so we throw it out:
-        #d_type = "Mono"
-        #if self.msg_bytes[26]>63:
-        #    d_type = "Stereo"
-        #print("Delay Type: {}".format(d_type))
-        # bytes 27-34: Delay L/R time (17 bits each) ???
-        # POD 2.0 says something about double precision of the delay time
-        # for CC 62, we have to experiment with that so see what it means
-        # or just fire up jsynthlib and see what it does ;)
+        # Max delay time is 3150ms, bytes 28,29,30 contain the value*6 but only 14 bits (instead of 24)
+        # so we divide by 6 and then multiply it with 0.192272 (that is 3150/0b11111111111111)
         delay_time = int(((((self.msg_bytes[28] << 8) | self.msg_bytes[29]) << 8) | self.msg_bytes[30])/6)
         delay_time = int(delay_time * 0.192272)
-        #delay_time = int(delay * 1.1442) # 1.1442 = 3150 / ((2**17) / 6)
         print("Delay Time: {}ms".format(delay_time))
         print("Delay Feedback: {}".format(self.msg_bytes[35]))
         print("Delay Level: {}".format(self.msg_bytes[37]))
