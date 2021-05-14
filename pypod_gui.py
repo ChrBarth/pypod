@@ -57,6 +57,7 @@ class pyPODGUI:
         handlers = {
             "onDestroy": Gtk.main_quit,
             "onProgramChange": self.program_change,
+            "onControlChange": self.control_change,
             "onMenuSaveAs": self.save_file,
             "onMenuOpen": self.open_file,
             "onMenuQuit": Gtk.main_quit,
@@ -165,7 +166,10 @@ class pyPODGUI:
         for program in line6.PROGRAMS:
             allprograms.append([program])
         allprograms.append(["Tuner"])
-        
+
+        allcontrols = self.go("ListStoreControlChange")
+        for control in line6.cc_commands.keys():
+            allcontrols.append([int(line6.cc_commands[control]), control])
 
         # }}}
         window.show_all()
@@ -470,6 +474,14 @@ class pyPODGUI:
             time.sleep(1)
             self.pypod_dump_editbuffer()
         self.updateGUI()
+
+    def control_change(self, *args):
+        index = self.go("ComboBoxControl").get_active()
+        model = self.go("ComboBoxControl").get_model()
+        cc_cmd = model[index][0]
+        cc_val = int(self.go("ScaleControlChangeValue").get_value())
+        self.pypod.logger.debug(f"CC: {cc_cmd} - {cc_val}")
+        self.pypod.send_cc(cc_cmd, cc_val)
     
     def get_combobox_program(self, *args):
         index = self.go("ComboBoxProgram").get_active()

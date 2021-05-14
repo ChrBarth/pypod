@@ -2532,6 +2532,12 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="model">ListStoreControlChange</property>
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
+                    </child>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2561,6 +2567,7 @@
                     <property name="receives_default">True</property>
                     <property name="halign">start</property>
                     <property name="valign">center</property>
+                    <signal name="clicked" handler="onControlChange" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
@@ -2568,12 +2575,14 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScale">
+                  <object class="GtkScale" id="ScaleControlChangeValue">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="adjustment">AdjustmentControlChangeValue</property>
+                    <property name="restrict_to_fill_level">False</property>
                     <property name="fill_level">0</property>
                     <property name="round_digits">1</property>
+                    <property name="digits">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
