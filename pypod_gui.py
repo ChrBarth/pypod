@@ -461,7 +461,15 @@ class pyPODGUI:
 
     def program_change(self, *args):
         prog = self.go("ComboBoxProgramChange").get_active()
+        self.pypod.logger.debug(f"program change: {prog}")
         self.pypod.send_pc(prog)
+        if prog>0 and prog<37:
+            self.pypod.dump_program(line6.PROGRAMS[prog-1])
+            time.sleep(1)
+        elif prog == 0:
+            time.sleep(1)
+            self.pypod_dump_editbuffer()
+        self.updateGUI()
     
     def get_combobox_program(self, *args):
         index = self.go("ComboBoxProgram").get_active()
