@@ -56,6 +56,7 @@ class pyPODGUI:
         # {{{ handlers:
         handlers = {
             "onDestroy": Gtk.main_quit,
+            "onProgramChange": self.program_change,
             "onMenuSaveAs": self.save_file,
             "onMenuOpen": self.open_file,
             "onMenuQuit": Gtk.main_quit,
@@ -158,6 +159,13 @@ class pyPODGUI:
         programlist = self.go("ListStoreProgram")
         for program in line6.PROGRAMS:
             programlist.append([program])
+
+        allprograms = self.go("ListStoreProgramChange")
+        allprograms.append(["Manual"])
+        for program in line6.PROGRAMS:
+            allprograms.append([program])
+        allprograms.append(["Tuner"])
+        
 
         # }}}
         window.show_all()
@@ -450,6 +458,10 @@ class pyPODGUI:
         model = self.go("ComboBoxMIDIOutput").get_model()
         midiout = model[index][0]
         self.pypod.connect_output(midiout)
+
+    def program_change(self, *args):
+        prog = self.go("ComboBoxProgramChange").get_active()
+        self.pypod.send_pc(prog)
     
     def get_combobox_program(self, *args):
         index = self.go("ComboBoxProgram").get_active()

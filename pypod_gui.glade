@@ -32,6 +32,11 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="AdjustmentControlChangeValue">
+    <property name="upper">127</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="AdjustmentDelayLevel">
     <property name="upper">127</property>
     <property name="step_increment">1</property>
@@ -223,12 +228,6 @@
       <column type="gint"/>
       <!-- column-name ControlChangeText -->
       <column type="gchararray"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="ListStoreControlValue">
-    <columns>
-      <!-- column-name ControlValue -->
-      <column type="gint"/>
     </columns>
   </object>
   <object class="GtkListStore" id="ListStoreEffects">
@@ -2501,6 +2500,12 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="model">ListStoreProgramChange</property>
+                    <child>
+                      <object class="GtkCellRendererText"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -2534,19 +2539,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBox" id="ComboBoxControlValue">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="halign">start</property>
-                    <property name="valign">center</property>
-                    <property name="model">ListStoreControlValue</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">7</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkButton" id="ButtonSendProgramChange">
                     <property name="label" translatable="yes">Send Program Change</property>
                     <property name="visible">True</property>
@@ -2554,6 +2546,7 @@
                     <property name="receives_default">True</property>
                     <property name="halign">start</property>
                     <property name="valign">center</property>
+                    <signal name="clicked" handler="onProgramChange" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
@@ -2571,6 +2564,19 @@
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
+                    <property name="top_attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="adjustment">AdjustmentControlChangeValue</property>
+                    <property name="fill_level">0</property>
+                    <property name="round_digits">1</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
                     <property name="top_attach">7</property>
                   </packing>
                 </child>
