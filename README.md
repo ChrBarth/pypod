@@ -53,6 +53,7 @@ buttons on the pod itself like wah, volume pedal, disable/enable reverb, delay, 
 * needs some testing, finding and fixing bugs
 * get rid of time.sleep() and call updateGUI from callback function when new data comes in
 * polish gui (group elements that belong together)
+* GUI: When downloading a certain program and updating the gui, ever gui-event gets triggered which results in midi commands being sent. This leads to the current program always being marked as changed (indicated by the little dot on the pod's display). Triggering these events in case of a program download (or program change) should be somehow disabled because it is somehow useless (we get data from the pod just to immediately send it back).
 
 ## REQUIREMENTS:
 
