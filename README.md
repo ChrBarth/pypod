@@ -51,7 +51,8 @@ buttons on the pod itself like wah, volume pedal, disable/enable reverb, delay, 
 ## TODO:
 
 * needs some testing, finding and fixing bugs
-* possibility to send arbitrary CC and Program Change commands to the pod
+* get rid of time.sleep() and call updateGUI from callback function when new data comes in
+* polish gui (group elements that belong together)
 
 ## REQUIREMENTS:
 
@@ -64,6 +65,7 @@ GUI version:
 
 ## CHANGELOG:
 
+* 2021-05-14: Send MIDI CC and Program Change commands via GUI to the pod, also started to include some css
 * 2021-05-03: The first version I consider somewhat fully functional, especially in the GUI-section. Now I will need to do some extensive testing to find and remove bugs. One bug I already stumbled over is a segmentation fault when changing a lot of settings on the pod directly (this gets now live-updated in the GUI!).
 * 2021-05-01: added logging and support for a simple json-configfile. Also added an option to show the available MIDI-ports for easy config-creation.
 * 2021-04-29: added pypod_gui.py, a GUI wrapper for pypod.py. There are still some widgets to add but it is mostly working.
