@@ -7,7 +7,7 @@ import time
 import mido
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 class pyPODGUI:
     pypod = pypod.pyPOD(loglevel="DEBUG")
@@ -471,8 +471,8 @@ class pyPODGUI:
             self.pypod.dump_program(line6.PROGRAMS[prog-1])
             time.sleep(1)
         elif prog == 0:
+            self.pypod.dump_editbuffer()
             time.sleep(1)
-            self.pypod_dump_editbuffer()
         self.updateGUI()
 
     def control_change(self, *args):
@@ -739,5 +739,25 @@ class pyPODGUI:
     # }}}
 
 if __name__ == '__main__':
+    # style stuff from
+    # https://gist.github.com/fcwu/5794494
+    css = b"""
+    .borderframe {
+        border-bottom: solid 1px #ccc;
+        padding: 4px;
+        }
+    .PODInfo {
+        font-weight: bold;
+        color: #555;
+        }
+    """
+    style_provider =  Gtk.CssProvider()
+    style_provider.load_from_data(css)
+    Gtk.StyleContext.add_provider_for_screen(
+        Gdk.Screen.get_default(),
+        style_provider,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+    # end style stuff
+
     pyPODGUI()
     Gtk.main()
