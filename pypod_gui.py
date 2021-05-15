@@ -469,11 +469,8 @@ class pyPODGUI:
         self.pypod.send_pc(prog)
         if prog>0 and prog<37:
             self.pypod.dump_program(line6.PROGRAMS[prog-1])
-            time.sleep(1)
         elif prog == 0:
             self.pypod.dump_editbuffer()
-            time.sleep(1)
-        self.updateGUI()
 
     def control_change(self, *args):
         index = self.go("ComboBoxControl").get_active()
