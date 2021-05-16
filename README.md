@@ -48,6 +48,11 @@ We now have support for a config file. The format is json and it can be either s
 There is also a GUI (pypod_gui.py) based on Gtk and built with glade that lets you do all
 the stuff using a graphical interface.
 
+## DEMOS:
+
+* commandline version: [YouTube](https://youtu.be/CrxVrib7MgY)
+* GUI version: [YouTube](https://youtu.be/lPLfrbN7K4w)
+
 ## TODO:
 
 * needs some testing, finding and fixing bugs
