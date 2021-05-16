@@ -50,14 +50,15 @@ the stuff using a graphical interface.
 
 ## DEMOS:
 
-* commandline version: [YouTube](https://youtu.be/CrxVrib7MgY)
-* GUI version: [YouTube](https://youtu.be/lPLfrbN7K4w)
+I made two short videos, one for the commandline and one for the GUI, here are the links (YouTube):
+
+* [commandline version](https://youtu.be/CrxVrib7MgY)
+* [GUI version](https://youtu.be/lPLfrbN7K4w)
 
 ## TODO:
 
 * needs some testing, finding and fixing bugs
 * get rid of time.sleep() and call updateGUI from callback function when new data comes in
-* GUI: When downloading a certain program and updating the gui, ever gui-event gets triggered which results in midi commands being sent. This leads to the current program always being marked as changed (indicated by the little dot on the pod's display). Triggering these events in case of a program download (or program change) should be somehow disabled because it is somehow useless (we get data from the pod just to immediately send it back).
 
 ## REQUIREMENTS:
 
