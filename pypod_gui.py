@@ -56,6 +56,7 @@ class pyPODGUI:
         # {{{ handlers:
         handlers = {
             "onDestroy": Gtk.main_quit,
+            "onAbout": self.about_dialog,
             "onProgramChange": self.program_change,
             "onControlChange": self.control_change,
             "onMenuSaveAs": self.save_file,
@@ -531,7 +532,24 @@ class pyPODGUI:
 
     def update_delaytime(self, *args):
         self.go("EntryDelayMS").set_text(str(self.calculate_delaytime()))
-        
+
+    def about_dialog(self, *args):
+        dialog = Gtk.MessageDialog(
+            #transient_for=self,
+            flags=0,
+            message_type=Gtk.MessageType.INFO,
+            buttons=Gtk.ButtonsType.OK,
+            text="pyPOD GUI",
+            )
+        dialog.format_secondary_text(
+            """a simple gui for pypod.py
+by C. Barth 2021
+https://github.com/ChrBarth/pypod
+See README.md for more info"""
+        )
+        dialog.run()
+        dialog.destroy()
+
     # }}}
 
     # {{{ file functions
