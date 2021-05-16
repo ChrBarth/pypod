@@ -7,7 +7,7 @@ import time
 import mido
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GObject
 
 class pyPODGUI:
     pypod = pypod.pyPOD(loglevel="DEBUG")
@@ -470,8 +470,13 @@ class pyPODGUI:
         self.pypod.send_pc(prog)
         if prog>0 and prog<37:
             self.pypod.dump_program(line6.PROGRAMS[prog-1])
+            time.sleep(1)
+            self.block_handlers()
+            self.updateGUI()
+            self.unblock_handlers()
         elif prog == 0:
-            self.pypod.dump_editbuffer()
+            #self.pypod.dump_editbuffer()
+            self.download_editbuffer()
 
     def control_change(self, *args):
         index = self.go("ComboBoxControl").get_active()
@@ -493,17 +498,25 @@ class pyPODGUI:
         if len(self.pypod.msg_bytes) < 72:
             self.pypod.logger.error("ERROR: No data received!")
         else:
+            self.block_handlers()
             self.updateGUI()
+            self.unblock_handlers()
 
     def download_program(self, *args):
-        # display a dialog to specify what to download:
+        # downloads program selected in ComboBoxProgram
         program = self.get_combobox_program()
         self.pypod.dump_program(program)
+        # set the POD to the Program:
+        prog = line6.PROGRAMS.index(program)
+        self.pypod.send_pc(prog + 1)
+        self.pypod.logger.debug(f"program: {program}")
         time.sleep(1)
         if len(self.pypod.msg_bytes) < 72:
             self.pypod.logger.error("ERROR: No data received!")
         else:
+            self.block_handlers()
             self.updateGUI()
+            self.unblock_handlers()
 
     def upload_program(self, *args):
         # first, download the edit buffer:
@@ -608,6 +621,7 @@ See README.md for more info"""
             Some values are not stored in the sysex-dumps:
             volume swell on/off """
         msg = self.pypod.msg_bytes
+        #self.block_handlers()
         self.go("ComboBoxAmpModel").set_active(msg[9])
         self.go("ComboBoxCabModel").set_active(msg[45])
         self.go("ComboBoxEffect").set_active(msg[47])
@@ -679,6 +693,7 @@ See README.md for more info"""
         self.go("ScaleVolumePedalMin").set_value(msg[24])
         self.go("ScaleVolumeSwellRamp").set_value(msg[49]*2)
         self.go("EntryPatchName").set_text(self.pypod.get_program_name())
+        #self.unblock_handlers()
     # }}}
 
     # {{{ updatewidets
@@ -751,6 +766,122 @@ See README.md for more info"""
                 self.go("ScaleDelayLevel").set_value(val)
             if cc == 32:
                 self.go("ScaleDelayRepeats").set_value(val)
+    # }}}
+
+    # {{{ blocking/unblocking signal handlers:
+    def block_handlers(self):
+        """
+           blocks signal handlers, so we do not immediately re-send settings
+           we just received from the pod
+           https://python-gtk-3-tutorial.readthedocs.io/en/latest/objects.html#signals
+           https://www.parlatype.org/reference/python_example.html
+        """
+        GObject.GObject.handler_block_by_func(self.go("ComboBoxAmpModel"), self.change_amp)
+        GObject.GObject.handler_block_by_func(self.go("ComboBoxCabModel"), self.change_cab)
+        GObject.GObject.handler_block_by_func(self.go("ScaleChannelVol"), self.change_channel_vol)
+        GObject.GObject.handler_block_by_func(self.go("ScaleBass"), self.change_bass)
+        GObject.GObject.handler_block_by_func(self.go("ScaleMid"), self.change_mid)
+        GObject.GObject.handler_block_by_func(self.go("ScaleTreble"), self.change_treble)
+        GObject.GObject.handler_block_by_func(self.go("ScaleDrive"), self.change_drive)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonDistortion"), self.toggle_distortion)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonDriveBoost"), self.toggle_driveboost)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonPresence"), self.toggle_presence)
+        GObject.GObject.handler_block_by_func(self.go("ScalePresence"), self.change_presence)
+        GObject.GObject.handler_block_by_func(self.go("ScaleAIRAmbience"), self.change_airambience)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonBright"), self.toggle_bright)
+        GObject.GObject.handler_block_by_func(self.go("ComboBoxEffect"), self.change_effect)
+        GObject.GObject.handler_block_by_func(self.go("ScaleEffectTweak"), self.change_effect_tweak)
+        GObject.GObject.handler_block_by_func(self.go("ScaleModSpeed"), self.change_modspeed)
+        GObject.GObject.handler_block_by_func(self.go("ScaleModDepth"), self.change_moddepth)
+        GObject.GObject.handler_block_by_func(self.go("ScaleFeedback"), self.change_feedback)
+        GObject.GObject.handler_block_by_func(self.go("ScaleChorusPreDelay"), self.change_choruspredelay)
+        GObject.GObject.handler_block_by_func(self.go("ScaleRotarySpeed"), self.change_rotaryspeed)
+        GObject.GObject.handler_block_by_func(self.go("ScaleRotaryMaxSpeed"), self.change_rotarymaxspeed)
+        GObject.GObject.handler_block_by_func(self.go("ScaleRotaryMinSpeed"), self.change_rotaryminspeed)
+        GObject.GObject.handler_block_by_func(self.go("ScaleTremoloSpeed"), self.change_tremolospeed)
+        GObject.GObject.handler_block_by_func(self.go("ScaleTremoloDepth"), self.change_tremolodepth)
+        GObject.GObject.handler_block_by_func(self.go("ComboBoxCompressionRatio"), self.change_compressionvalue)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonNoiseGate"), self.toggle_noisegate)
+        GObject.GObject.handler_block_by_func(self.go("ScaleGateThresh"), self.change_noisegate_thresh)
+        GObject.GObject.handler_block_by_func(self.go("ScaleGateDecay"), self.change_noisegate_decay)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonDelay"), self.toggle_delay)
+        GObject.GObject.handler_block_by_func(self.go("ScaleDelayTime"), self.change_delaytime)
+        GObject.GObject.handler_block_by_func(self.go("ScaleDelayTime2"), self.change_delaytime2)
+        GObject.GObject.handler_block_by_func(self.go("ScaleDelayRepeats"), self.change_delayrepeats)
+        GObject.GObject.handler_block_by_func(self.go("ScaleDelayLevel"), self.change_delaylevel)
+        GObject.GObject.handler_block_by_func(self.go("CheckButtonReverb"), self.toggle_reverb)
+        GObject.GObject.handler_block_by_func(self.go("ScaleReverbLevel"), self.change_reverblevel)
+        GObject.GObject.handler_block_by_func(self.go("ComboBoxReverbType"), self.change_reverbtype)
+        GObject.GObject.handler_block_by_func(self.go("ScaleReverbDecay"), self.change_reverbdecay)
+        GObject.GObject.handler_block_by_func(self.go("ScaleReverbTone"), self.change_reverbtone)
+        GObject.GObject.handler_block_by_func(self.go("ScaleReverbDiffusion"), self.change_reverbdiffusion)
+        GObject.GObject.handler_block_by_func(self.go("ScaleReverbDensity"), self.change_reverbdensity)
+        GObject.GObject.handler_block_by_func(self.go("SwitchWah"), self.toggle_wah)
+        GObject.GObject.handler_block_by_func(self.go("ScaleWahPosition"), self.change_wahposition)
+        GObject.GObject.handler_block_by_func(self.go("ScaleWahBottom"), self.change_wahbottom)
+        GObject.GObject.handler_block_by_func(self.go("ScaleWahTop"), self.change_wahtop)
+        GObject.GObject.handler_block_by_func(self.go("ScaleVolumePedal"), self.change_volumepedal)
+        GObject.GObject.handler_block_by_func(self.go("ScaleVolumePedalMin"), self.change_volumepedalmin)
+        GObject.GObject.handler_block_by_func(self.go("ComboBoxVolumePos"), self.change_volumepos)
+        GObject.GObject.handler_block_by_func(self.go("SwitchVolumeSwell"), self.toggle_volumeswell)
+        GObject.GObject.handler_block_by_func(self.go("ScaleVolumeSwellRamp"), self.change_volumeswellramp)
+
+    def unblock_handlers(self):
+        """
+           blocks signal handlers, so we do not immediately re-send settings
+           we just received from the pod
+           https://python-gtk-3-tutorial.readthedocs.io/en/latest/objects.html#signals
+           https://www.parlatype.org/reference/python_example.html
+        """
+        GObject.GObject.handler_unblock_by_func(self.go("ComboBoxAmpModel"), self.change_amp)
+        GObject.GObject.handler_unblock_by_func(self.go("ComboBoxCabModel"), self.change_cab)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleChannelVol"), self.change_channel_vol)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleBass"), self.change_bass)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleMid"), self.change_mid)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleTreble"), self.change_treble)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleDrive"), self.change_drive)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonDistortion"), self.toggle_distortion)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonDriveBoost"), self.toggle_driveboost)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonPresence"), self.toggle_presence)
+        GObject.GObject.handler_unblock_by_func(self.go("ScalePresence"), self.change_presence)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleAIRAmbience"), self.change_airambience)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonBright"), self.toggle_bright)
+        GObject.GObject.handler_unblock_by_func(self.go("ComboBoxEffect"), self.change_effect)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleEffectTweak"), self.change_effect_tweak)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleModSpeed"), self.change_modspeed)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleModDepth"), self.change_moddepth)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleFeedback"), self.change_feedback)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleChorusPreDelay"), self.change_choruspredelay)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleRotarySpeed"), self.change_rotaryspeed)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleRotaryMaxSpeed"), self.change_rotarymaxspeed)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleRotaryMinSpeed"), self.change_rotaryminspeed)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleTremoloSpeed"), self.change_tremolospeed)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleTremoloDepth"), self.change_tremolodepth)
+        GObject.GObject.handler_unblock_by_func(self.go("ComboBoxCompressionRatio"), self.change_compressionvalue)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonNoiseGate"), self.toggle_noisegate)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleGateThresh"), self.change_noisegate_thresh)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleGateDecay"), self.change_noisegate_decay)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonDelay"), self.toggle_delay)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleDelayTime"), self.change_delaytime)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleDelayTime2"), self.change_delaytime2)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleDelayRepeats"), self.change_delayrepeats)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleDelayLevel"), self.change_delaylevel)
+        GObject.GObject.handler_unblock_by_func(self.go("CheckButtonReverb"), self.toggle_reverb)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleReverbLevel"), self.change_reverblevel)
+        GObject.GObject.handler_unblock_by_func(self.go("ComboBoxReverbType"), self.change_reverbtype)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleReverbDecay"), self.change_reverbdecay)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleReverbTone"), self.change_reverbtone)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleReverbDiffusion"), self.change_reverbdiffusion)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleReverbDensity"), self.change_reverbdensity)
+        GObject.GObject.handler_unblock_by_func(self.go("SwitchWah"), self.toggle_wah)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleWahPosition"), self.change_wahposition)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleWahBottom"), self.change_wahbottom)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleWahTop"), self.change_wahtop)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleVolumePedal"), self.change_volumepedal)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleVolumePedalMin"), self.change_volumepedalmin)
+        GObject.GObject.handler_unblock_by_func(self.go("ComboBoxVolumePos"), self.change_volumepos)
+        GObject.GObject.handler_unblock_by_func(self.go("SwitchVolumeSwell"), self.toggle_volumeswell)
+        GObject.GObject.handler_unblock_by_func(self.go("ScaleVolumeSwellRamp"), self.change_volumeswellramp)
     # }}}
 
 if __name__ == '__main__':
