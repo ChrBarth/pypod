@@ -120,10 +120,16 @@ class pyPOD:
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x00, 0x00, line6.PROGRAMS.index(program)])
         self.outport.send(msg)
 
-    def upload_editbuffer(self, message):
+    def upload_editbuffer(self):
         self.logger.info("Upload edit buffer")
         msg = mido.Message('sysex', data=[0x00, 0x01, 0x0c, 0x01, 0x01, 0x01])
+        message = mido.Message('sysex')
+        for byte in self.msg_bytes:
+            message.data += self.nib(byte)
         msg.data += message.data[1:]
+        self.logger.debug(f"message length: {len(message.data)}")
+        self.logger.debug(f"msg.data: {msg.data}")
+        self.logger.debug(f"total length: {len(msg.data)}")
         self.outport.send(msg)
 
     def upload_program(self, program):

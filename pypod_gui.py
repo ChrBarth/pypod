@@ -26,11 +26,15 @@ class pyPODGUI:
             self.pypod.parse_progdump(message)
             self.updateGUI()
         elif message.type == 'sysex' and len(message.bytes()) == 17:
-            self.pypod.pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
-            self.pypod.manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
-            self.pypod.product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
-            self.pypod.product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
-            self.pypod.logger.info("Received sysex (device info)")
+            pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
+            manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
+            product_family = "{:02X}{:02X}".format(message.bytes()[9], message.bytes()[8])
+            product_family_member = "{:02X}{:02X}".format(message.bytes()[11], message.bytes()[10])
+            self.pypod.logger.debug("Received sysex (device info)")
+            self.go("EntryPODVersion").set_text(pod_version)
+            self.go("EntryManufacturerID").set_text(manufacturer_id)
+            self.go("EntryProductFamilyID").set_text(product_family)
+            self.go("EntryProductFamilyMember").set_text(product_family_member)
         elif message.type == 'sysex' and len(message.bytes()) == 151:
             # the editbuffer-dump is one byte shorter than a regular program dump
             dummymsg = mido.Message('sysex', data = [ 0 ])
@@ -462,11 +466,6 @@ class pyPODGUI:
 
     def download_editbuffer(self, *args):
         self.pypod.dump_editbuffer()
-        time.sleep(1)
-        if len(self.pypod.msg_bytes) < 72:
-            self.pypod.logger.error("ERROR: No data received!")
-        else:
-            self.updateGUI()
 
     def download_program(self, *args):
         # downloads program selected in ComboBoxProgram
@@ -478,17 +477,14 @@ class pyPODGUI:
             prog = line6.PROGRAMS.index(program)
             self.pypod.send_pc(prog + 1)
         self.pypod.logger.debug(f"program: {program}")
-        time.sleep(1)
-        if len(self.pypod.msg_bytes) < 72:
-            self.pypod.logger.error("ERROR: No data received!")
-        else:
-            self.updateGUI()
 
     def upload_program(self, *args):
-        # first, download the edit buffer:
+        # first, download the edit buffer, but save the Name Entry before that:
+        new_name = self.go("EntryPatchName").get_text()
         self.pypod.dump_editbuffer()
         time.sleep(1)
         program = self.get_combobox_program()
+        self.go("EntryPatchName").set_text(new_name)
         self.update_programname()
         self.pypod.upload_program(program)
 
@@ -497,10 +493,6 @@ class pyPODGUI:
 
     def get_deviceinfo(self, *args):
         self.pypod.udq()
-        self.go("EntryPODVersion").set_text(self.pypod.pod_version)
-        self.go("EntryManufacturerID").set_text(self.pypod.manufacturer_id)
-        self.go("EntryProductFamilyID").set_text(self.pypod.product_family)
-        self.go("EntryProductFamilyMember").set_text(self.pypod.product_family_member)
 
     def calculate_delaytime(self, *args):
         msg = self.pypod.msg_bytes
@@ -572,7 +564,12 @@ See README.md for more info"""
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             self.pypod.load_syx(dialog.get_filename())
+            # We need to update the edit buffer after we load a file
+            # otherwise the GUI will show the settings of the file
+            # but the settings on the pod will remain unchanged. For that
+            # we have to use pypod.upload_editbuffer()
             self.updateGUI()
+            self.pypod.upload_editbuffer()
         elif response == Gtk.ResponseType.CANCEL:
             pass
             #print("Cancel!")
