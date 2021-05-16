@@ -45,14 +45,13 @@ We now have support for a config file. The format is json and it can be either s
 
 ## GUI:
 
-There is also a GUI (pypod_gui.py) based on Gtk and built with glade that is almost completely functional. At least modifying sounds works (and some stuff that is not possible using only the
-buttons on the pod itself like wah, volume pedal, disable/enable reverb, delay, modulation fx...)
+There is also a GUI (pypod_gui.py) based on Gtk and built with glade that lets you do all
+the stuff using a graphical interface.
 
 ## TODO:
 
 * needs some testing, finding and fixing bugs
 * get rid of time.sleep() and call updateGUI from callback function when new data comes in
-* polish gui (group elements that belong together)
 * GUI: When downloading a certain program and updating the gui, ever gui-event gets triggered which results in midi commands being sent. This leads to the current program always being marked as changed (indicated by the little dot on the pod's display). Triggering these events in case of a program download (or program change) should be somehow disabled because it is somehow useless (we get data from the pod just to immediately send it back).
 
 ## REQUIREMENTS:
@@ -64,8 +63,11 @@ GUI version:
 
 * python3-gi (```sudo apt install python3-gi```)
 
+This was written and tested on Ubuntu 20.04, it should probably run on other linux distributions as well, no idea if it also works on windows/mac, tell me if it does ;)
+
 ## CHANGELOG:
 
+* 2021-05-16: Re-organized Amp&FX Settings-Tab, added "About"-dialog
 * 2021-05-14: Send MIDI CC and Program Change commands via GUI to the pod, also started to include some css
 * 2021-05-03: The first version I consider somewhat fully functional, especially in the GUI-section. Now I will need to do some extensive testing to find and remove bugs. One bug I already stumbled over is a segmentation fault when changing a lot of settings on the pod directly (this gets now live-updated in the GUI!).
 * 2021-05-01: added logging and support for a simple json-configfile. Also added an option to show the available MIDI-ports for easy config-creation.
