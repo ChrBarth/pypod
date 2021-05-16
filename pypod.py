@@ -145,7 +145,6 @@ class pyPOD:
     def udq(self):
         msg = mido.Message('sysex', data=[0x7e, self.midi_channel, 0x06, 0x01])
         self.outport.send(msg)
-        time.sleep(1)
 
     def parse_progdump(self, message):
         self.msg_bytes = []
