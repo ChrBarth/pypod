@@ -1733,7 +1733,8 @@
               <object class="GtkLabel" id="AmpTab">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Amp &amp; FX Settings</property>
+                <property name="label" translatable="yes">_Amp &amp; FX Settings</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="menu_label">Amps, Cabs</property>
@@ -2699,7 +2700,8 @@
               <object class="GtkLabel" id="FXTab">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">More FX</property>
+                <property name="label" translatable="yes">M_ore FX</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="menu_label">FX</property>
@@ -3270,7 +3272,8 @@
               <object class="GtkLabel" id="MIDITab">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">MIDI Settings</property>
+                <property name="label" translatable="yes">_MIDI Settings</property>
+                <property name="use_underline">True</property>
               </object>
               <packing>
                 <property name="menu_label">MIDI</property>
