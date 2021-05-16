@@ -57,8 +57,6 @@ class pyPODGUI:
         handlers = {
             "onDestroy": Gtk.main_quit,
             "onAbout": self.about_dialog,
-            "onProgramChange": self.program_change,
-            "onControlChange": self.control_change,
             "onMenuSaveAs": self.save_file,
             "onMenuOpen": self.open_file,
             "onMenuQuit": Gtk.main_quit,
@@ -161,16 +159,6 @@ class pyPODGUI:
         programlist = self.go("ListStoreProgram")
         for program in line6.PROGRAMS:
             programlist.append([program])
-
-        allprograms = self.go("ListStoreProgramChange")
-        allprograms.append(["Manual"])
-        for program in line6.PROGRAMS:
-            allprograms.append([program])
-        allprograms.append(["Tuner"])
-
-        allcontrols = self.go("ListStoreControlChange")
-        for control in line6.cc_commands.keys():
-            allcontrols.append([int(line6.cc_commands[control]), control])
 
         # }}}
         window.show_all()
@@ -464,28 +452,6 @@ class pyPODGUI:
         midiout = model[index][0]
         self.pypod.connect_output(midiout)
 
-    def program_change(self, *args):
-        prog = self.go("ComboBoxProgramChange").get_active()
-        self.pypod.logger.debug(f"program change: {prog}")
-        self.pypod.send_pc(prog)
-        if prog>0 and prog<37:
-            self.pypod.dump_program(line6.PROGRAMS[prog-1])
-            time.sleep(1)
-            self.block_handlers()
-            self.updateGUI()
-            self.unblock_handlers()
-        elif prog == 0:
-            #self.pypod.dump_editbuffer()
-            self.download_editbuffer()
-
-    def control_change(self, *args):
-        index = self.go("ComboBoxControl").get_active()
-        model = self.go("ComboBoxControl").get_model()
-        cc_cmd = model[index][0]
-        cc_val = int(self.go("ScaleControlChangeValue").get_value())
-        self.pypod.logger.debug(f"CC: {cc_cmd} - {cc_val}")
-        self.pypod.send_cc(cc_cmd, cc_val)
-    
     def get_combobox_program(self, *args):
         index = self.go("ComboBoxProgram").get_active()
         model = self.go("ComboBoxProgram").get_model()
