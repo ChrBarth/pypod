@@ -24,6 +24,7 @@ class pyPODGUI:
         if message.type == 'sysex' and len(message.bytes()) == 152:
             self.pypod.logger.info(f"Received sysex (program dump)")
             self.pypod.parse_progdump(message)
+            self.updateGUI()
         elif message.type == 'sysex' and len(message.bytes()) == 17:
             self.pypod.pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
             self.pypod.manufacturer_id = "{:02X} {:02X} {:02X}".format(message.bytes()[5], message.bytes()[6], message.bytes()[7])
@@ -36,6 +37,7 @@ class pyPODGUI:
             message.data = dummymsg.data + message.data
             self.pypod.parse_progdump(message)
             self.pypod.logger.info("Received sysex (edit buffer)")
+            self.updateGUI()
         elif message.type == 'program_change' and len(message.bytes()) == 2:
             prog = "Edit Buffer" if message.bytes()[1] == 0 else line6.PROGRAMS[message.bytes()[1]-1]
             self.pypod.logger.info(f"Received program_change message: {prog}")
@@ -464,25 +466,23 @@ class pyPODGUI:
         if len(self.pypod.msg_bytes) < 72:
             self.pypod.logger.error("ERROR: No data received!")
         else:
-            self.block_handlers()
             self.updateGUI()
-            self.unblock_handlers()
 
     def download_program(self, *args):
         # downloads program selected in ComboBoxProgram
         program = self.get_combobox_program()
         self.pypod.dump_program(program)
-        # set the POD to the Program:
-        prog = line6.PROGRAMS.index(program)
-        self.pypod.send_pc(prog + 1)
+        if len(args) == 1:
+            # we are getting called from the GUI, so
+            # we send a program change to the pod:
+            prog = line6.PROGRAMS.index(program)
+            self.pypod.send_pc(prog + 1)
         self.pypod.logger.debug(f"program: {program}")
         time.sleep(1)
         if len(self.pypod.msg_bytes) < 72:
             self.pypod.logger.error("ERROR: No data received!")
         else:
-            self.block_handlers()
             self.updateGUI()
-            self.unblock_handlers()
 
     def upload_program(self, *args):
         # first, download the edit buffer:
@@ -586,8 +586,8 @@ See README.md for more info"""
             program was fetched from the pod or loaded from disk
             Some values are not stored in the sysex-dumps:
             volume swell on/off """
+        self.block_handlers()
         msg = self.pypod.msg_bytes
-        #self.block_handlers()
         self.go("ComboBoxAmpModel").set_active(msg[9])
         self.go("ComboBoxCabModel").set_active(msg[45])
         self.go("ComboBoxEffect").set_active(msg[47])
@@ -658,13 +658,15 @@ See README.md for more info"""
         self.go("ScaleVolumePedal").set_value(msg[23])
         self.go("ScaleVolumePedalMin").set_value(msg[24])
         self.go("ScaleVolumeSwellRamp").set_value(msg[49]*2)
-        self.go("EntryPatchName").set_text(self.pypod.get_program_name())
-        #self.unblock_handlers()
+        progname = "".join(map(chr,msg[56:]))
+        self.go("EntryPatchName").set_text(progname)
+        self.unblock_handlers()
     # }}}
 
     # {{{ updatewidets
     def updatewidgets(self, m_bytes):
         self.pypod.logger.debug(f"m_bytes: {m_bytes}")
+        self.block_handlers()
         if m_bytes[0] == 176 and len(m_bytes) == 3:
             # CC received:
             cc = m_bytes[1]
@@ -732,6 +734,7 @@ See README.md for more info"""
                 self.go("ScaleDelayLevel").set_value(val)
             if cc == 32:
                 self.go("ScaleDelayRepeats").set_value(val)
+            self.unblock_handlers()
     # }}}
 
     # {{{ blocking/unblocking signal handlers:
