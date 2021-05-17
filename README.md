@@ -55,6 +55,10 @@ I made two short videos, one for the commandline and one for the GUI, here are t
 * [commandline version](https://youtu.be/CrxVrib7MgY)
 * [GUI version](https://youtu.be/lPLfrbN7K4w)
 
+## BUGS:
+
+* when turning to many knobs on the pod the GUI freezes. This is probably still the same bug as before when it would just quit with a segmentation fault. I still have no idea how to fix this, for now it is not recommended to change too many settings in a short time on the pod.
+
 ## TODO:
 
 * needs some testing, finding and fixing bugs
@@ -73,6 +77,7 @@ This was written and tested on Ubuntu 20.04, it should probably run on other lin
 
 ## CHANGELOG:
 
+* 2021-05-17: cleaned up some logging messages, added -l / -log-level argument to pypod_gui.py so the loglevel can be changed on startup (is now CRITICAL, so very quiet by default)
 * 2021-05-16: Re-organized Amp&FX Settings-Tab, added "About"-dialog
 * 2021-05-14: Send MIDI CC and Program Change commands via GUI to the pod, also started to include some css
 * 2021-05-03: The first version I consider somewhat fully functional, especially in the GUI-section. Now I will need to do some extensive testing to find and remove bugs. One bug I already stumbled over is a segmentation fault when changing a lot of settings on the pod directly (this gets now live-updated in the GUI!).

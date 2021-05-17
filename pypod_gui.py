@@ -5,12 +5,14 @@ import line6
 import pypod
 import time
 import mido
+import argparse
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GObject
 
 class pyPODGUI:
-    pypod = pypod.pyPOD(loglevel="DEBUG")
+    # by default we are now quiet, loglevel can now be set with -l / --log-level
+    pypod = pypod.pyPOD(loglevel="CRITICAL")
     builder = ""
     midi_inputs = []
     midi_outputs = []
@@ -22,8 +24,9 @@ class pyPODGUI:
         # copied from pypod.py:
         # a single program dump is 152 bytes long (9 bytes header, 142 bytes data, &xF7 is the last byte)
         if message.type == 'sysex' and len(message.bytes()) == 152:
-            self.pypod.logger.info(f"Received sysex (program dump)")
+            self.pypod.logger.debug(f"Received sysex (program dump)")
             self.pypod.parse_progdump(message)
+            # if we call updateGUI from here, we no longer need time.sleep()!
             self.updateGUI()
         elif message.type == 'sysex' and len(message.bytes()) == 17:
             pod_version = "".join([chr(x) for x in message.bytes()[12:16]])
@@ -40,23 +43,29 @@ class pyPODGUI:
             dummymsg = mido.Message('sysex', data = [ 0 ])
             message.data = dummymsg.data + message.data
             self.pypod.parse_progdump(message)
-            self.pypod.logger.info("Received sysex (edit buffer)")
+            self.pypod.logger.debug("Received sysex (edit buffer)")
             self.updateGUI()
         elif message.type == 'program_change' and len(message.bytes()) == 2:
             prog = "Edit Buffer" if message.bytes()[1] == 0 else line6.PROGRAMS[message.bytes()[1]-1]
-            self.pypod.logger.info(f"Received program_change message: {prog}")
-            # TODO: Download program
+            self.pypod.logger.debug(f"Received program_change message: {prog}")
             if prog == "Edit Buffer":
                 self.download_editbuffer()
             else:
                 self.go("ComboBoxProgram").set_active(int(message.bytes()[1]-1))
                 self.download_program()
         elif message.type == 'control_change':
+            self.pypod.logger.debug(f"Received CC: {message.bytes()}")
             self.updatewidgets(message.bytes())
         else:
+            # this usually only happens when there is some issue with
+            # the MIDI connection and MIDI data sent to the pod gets
+            # returned to the application.
             self.pypod.logger.warning(f"Unknown message type {message.type}: {message.bytes()} ({len(message.bytes())}) bytes:")
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        if kwargs['loglevel']:
+            self.pypod.set_loglevel(kwargs['loglevel'])
+            self.pypod.logger.info(f"Set loglevel to {kwargs['loglevel']}")
         self.builder = Gtk.Builder()
         self.builder.add_from_file("pypod_gui.glade")
         # {{{ handlers:
@@ -190,6 +199,7 @@ class pyPODGUI:
         for m_input in self.midi_inputs:
             midi_inputlist.append([m_input])
             if m_input == self.pypod.inport.name:
+                self.pypod.logger.debug(f"active MIDI input: {m_input}")
                 self.go("ComboBoxMIDIInput").set_active(self.midi_inputs.index(m_input))
 
     def change_amp(self, *args):
@@ -281,7 +291,7 @@ class pyPODGUI:
         if delaysw:
             delay = 127
         self.pypod.send_cc(28, delay)
-        self.pypod.logger.debug(f"delay: {delay} (sw: {delaysw})")
+        #self.pypod.logger.debug(f"delay: {delay} (sw: {delaysw})")
 
     def change_delaytime(self, *args):
         delaytime = int(self.go("ScaleDelayTime").get_value())
@@ -470,6 +480,8 @@ class pyPODGUI:
     def download_program(self, *args):
         # downloads program selected in ComboBoxProgram
         program = self.get_combobox_program()
+        # program is just the index of the selected element but it is the
+        # same index as in line6.PROGRAMS[]
         self.pypod.dump_program(program)
         if len(args) == 1:
             # we are getting called from the GUI, so
@@ -486,6 +498,7 @@ class pyPODGUI:
         program = self.get_combobox_program()
         self.go("EntryPatchName").set_text(new_name)
         self.update_programname()
+        self.pypod.logger.debug(f"Uploading {program}")
         self.pypod.upload_program(program)
 
     def update_programname(self, *args):
@@ -870,6 +883,17 @@ if __name__ == '__main__':
         style_provider,
         Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
     # end style stuff
+    
+    # parsing arguments:
+    parser = argparse.ArgumentParser('pypod_gui.py')
+    parser.add_argument('-l', '--log-level', type=str, help='Uploads program data (from file) to pod', dest='log_level')
 
-    pyPODGUI()
+    args=parser.parse_args()
+
+    loglevel = "ERROR"
+    if args.log_level:
+        if args.log_level in [ "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL" ]:
+            loglevel = args.log_level
+
+    pyPODGUI(loglevel=loglevel)
     Gtk.main()
