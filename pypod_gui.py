@@ -366,10 +366,10 @@ class pyPODGUI:
         self.pypod.send_cc(46, volpedalmin)
 
     def toggle_volumeswell(self, *args):
-        swell = 127
+        swell = 0
         swellsw = self.go("SwitchVolumeSwell").get_state()
         if swellsw:
-            swell = 0
+            swell = 127
         self.pypod.send_cc(48, swell)
 
     def change_volumeswellramp(self, *args):
@@ -445,10 +445,10 @@ class pyPODGUI:
         self.pypod.send_cc(64,127)
 
     def toggle_modulation(self, *args):
-        mod = 127
+        mod = 0
         modsw = self.go("SwitchModulation").get_state()
         if modsw:
-            mod = 0
+            mod = 127
         self.pypod.send_cc(50, mod)
 
     def change_midichannel(self, *args):
